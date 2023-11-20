@@ -1,0 +1,149 @@
+﻿@page "/Predictive-maintenance-entry"
+@using PredictiveMaintenance.Interfaces
+@using PredictiveMaintenance.Models
+@inject IMaintenanceService MaintenanceService
+
+<h3>Maintenance Records</h3>
+
+@if (paginatedMaintenanceModelsList != null && paginatedMaintenanceModelsList.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>UDI</th>
+                <th>Product ID</th>
+                <th>Type</th>
+                <th>Air Temperature</th>
+                <th>Process Temperature</th>
+                <th>Rotational Speed</th>
+                <th>Torque</th>
+                <th>Tool Wear</th>
+                <th>Prediction From Model</th>
+            </tr>
+        </thead>
+   <tbody>
+    @foreach (var item in paginatedMaintenanceModelsList)
+    {
+        <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
+            <td>@item.UDI</td>
+            <td>@item.ProductID</td>
+            <td>@item.Type</td>
+            <td>@item.AirTemperature</td>
+            <td>@item.ProcessTemperature</td>
+            <td>@item.RotationalSpeed</td>
+            <td>@item.Torque</td>
+            <td>@item.ToolWear</td>
+            <td>@item.PredictionFromModel</td>
+        </tr>
+    }
+</tbody>
+    </table>
+
+    <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
+    <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
+}
+
+<h3>Add New Maintenance Record</h3>
+
+<EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
+    <!-- Form inputs go here -->
+</EditForm>
+<EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="udi">UDI:</label>
+        <InputNumber id="udi" class="form-control" @bind-Value="newMaintenanceModel.UDI" />
+    </div>
+
+    <div class="form-group">
+        <label for="productID">Product ID:</label>
+        <InputText id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" />
+    </div>
+
+    <div class="form-group">
+        <label for="type">Type:</label>
+        <InputText id="type" class="form-control" @bind-Value="newMaintenanceModel.Type" />
+    </div>
+
+    <div class="form-group">
+        <label for="airTemperature">Air Temperature:</label>
+        <InputNumber id="airTemperature" class="form-control" @bind-Value="newMaintenanceModel.AirTemperature" />
+    </div>
+
+    <div class="form-group">
+        <label for="processTemperature">Process Temperature:</label>
+        <InputNumber id="processTemperature" class="form-control" @bind-Value="newMaintenanceModel.ProcessTemperature" />
+    </div>
+
+    <div class="form-group">
+        <label for="rotationalSpeed">Rotational Speed:</label>
+        <InputNumber id="rotationalSpeed" class="form-control" @bind-Value="newMaintenanceModel.RotationalSpeed" />
+    </div>
+
+    <div class="form-group">
+        <label for="torque">Torque:</label>
+        <InputNumber id="torque" class="form-control" @bind-Value="newMaintenanceModel.Torque" />
+    </div>
+
+    <div class="form-group">
+        <label for="toolWear">Tool Wear:</label>
+        <InputNumber id="toolWear" class="form-control" @bind-Value="newMaintenanceModel.ToolWear" />
+    </div>
+
+    <div class="form-group">
+        <label for="predictionFromModel">Prediction From Model:</label>
+        <InputNumber id="predictionFromModel" class="form-control" @bind-Value="newMaintenanceModel.PredictionFromModel" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    private PredictiveMaintenanceModel newMaintenanceModel = new PredictiveMaintenanceModel();
+    private List<PredictiveMaintenanceModel> maintenanceModelsList;
+    private List<PredictiveMaintenanceModel> paginatedMaintenanceModelsList;
+    private int currentPageIndex = 0;
+    private const int PageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        maintenanceModelsList = await MaintenanceService.GetMaintenanceDataAsync();
+        UpdatePaginatedList();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
+        maintenanceModelsList.Insert(0, newMaintenanceModel); // Insert at the beginning to show the most recent entry
+        newMaintenanceModel = new PredictiveMaintenanceModel(); // Reset the form
+        UpdatePaginatedList();
+    }
+
+    private void UpdatePaginatedList()
+    {
+        paginatedMaintenanceModelsList = maintenanceModelsList
+            .Skip(currentPageIndex * PageSize)
+            .Take(PageSize)
+            .ToList();
+    }
+
+    private void NextPage()
+    {
+        currentPageIndex++;
+        UpdatePaginatedList();
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPageIndex > 0)
+        {
+            currentPageIndex--;
+            UpdatePaginatedList();
+        }
+    }
+
+    private bool HasPreviousPage => currentPageIndex > 0;
+    private bool HasNextPage => (currentPageIndex + 1) * PageSize < maintenanceModelsList.Count;
+}

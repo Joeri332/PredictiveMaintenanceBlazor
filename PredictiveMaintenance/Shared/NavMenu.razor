@@ -1,0 +1,39 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">PredictiveMaintenance</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="nav flex-column">
+    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <span class="oi oi-home" aria-hidden="true"></span> Home
+    </NavLink>
+    <NavLink class="nav-link" href="counter">
+        <span class="oi oi-plus" aria-hidden="true"></span> Counter
+    </NavLink>
+    <NavLink class="nav-link" href="people">
+        <!-- This is the new NavLink for your page -->
+        <span class="oi oi-list" aria-hidden="true"></span> People
+    </NavLink>
+    <NavLink class="nav-link" href="predictive-maintenance-entry">
+        <!-- This is the new NavLink for your page -->
+        <span class="oi oi-list" aria-hidden="true"></span> predictive-maintenance-entry
+    </NavLink>
+    <NavLink class="nav-link" href="fetchdata">
+        <span class="oi oi-cloud-download" aria-hidden="true"></span> Fetch data
+    </NavLink>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

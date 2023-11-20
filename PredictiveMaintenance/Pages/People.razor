@@ -1,0 +1,68 @@
+﻿@page "/people"
+@using PredictiveMaintenance.Interfaces
+@using PredictiveMaintenance.Models
+@inject IPeopleService PeopleService
+
+
+<h3>People</h3>
+
+@if (people == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var person in people)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@person.Age</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4>Add a new person</h4>
+
+<EditForm Model="@newPerson" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="newPerson.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="age">Age:</label>
+        <InputNumber id="age" class="form-control" @bind-Value="newPerson.Age" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Person</button>
+</EditForm>
+
+@code {
+    private List<Person> people;
+    private Person newPerson = new Person();
+
+    protected override async Task OnInitializedAsync()
+    {
+        people = await PeopleService.GetPeopleAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await PeopleService.CreatePersonAsync(newPerson);
+        people.Add(newPerson); // Update the local list to reflect the new addition
+        newPerson = new Person(); // Reset the form
+    }
+}
