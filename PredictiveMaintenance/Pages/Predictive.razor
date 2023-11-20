@@ -3,46 +3,6 @@
 @using PredictiveMaintenance.Models
 @inject IMaintenanceService MaintenanceService
 
-<h3>Maintenance Records</h3>
-
-@if (paginatedMaintenanceModelsList != null && paginatedMaintenanceModelsList.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>UDI</th>
-                <th>Product ID</th>
-                <th>Type</th>
-                <th>Air Temperature</th>
-                <th>Process Temperature</th>
-                <th>Rotational Speed</th>
-                <th>Torque</th>
-                <th>Tool Wear</th>
-                <th>Prediction From Model</th>
-            </tr>
-        </thead>
-   <tbody>
-    @foreach (var item in paginatedMaintenanceModelsList)
-    {
-        <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
-            <td>@item.UDI</td>
-            <td>@item.ProductID</td>
-            <td>@item.Type</td>
-            <td>@item.AirTemperature</td>
-            <td>@item.ProcessTemperature</td>
-            <td>@item.RotationalSpeed</td>
-            <td>@item.Torque</td>
-            <td>@item.ToolWear</td>
-            <td>@item.PredictionFromModel</td>
-        </tr>
-    }
-</tbody>
-    </table>
-
-    <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
-    <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
-}
-
 <h3>Add New Maintenance Record</h3>
 
 <EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
@@ -100,50 +60,43 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </EditForm>
 
-@code {
-    private PredictiveMaintenanceModel newMaintenanceModel = new PredictiveMaintenanceModel();
-    private List<PredictiveMaintenanceModel> maintenanceModelsList;
-    private List<PredictiveMaintenanceModel> paginatedMaintenanceModelsList;
-    private int currentPageIndex = 0;
-    private const int PageSize = 5;
+<h3>Maintenance Records</h3>
 
-    protected override async Task OnInitializedAsync()
-    {
-        maintenanceModelsList = await MaintenanceService.GetMaintenanceDataAsync();
-        UpdatePaginatedList();
-    }
+@if (paginatedMaintenanceModelsList != null && paginatedMaintenanceModelsList.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>UDI</th>
+                <th>Product ID</th>
+                <th>Type</th>
+                <th>Air Temperature</th>
+                <th>Process Temperature</th>
+                <th>Rotational Speed</th>
+                <th>Torque</th>
+                <th>Tool Wear</th>
+                <th>Prediction From Model</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in paginatedMaintenanceModelsList)
+            {
+                <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
+                    <td>@item.UDI</td>
+                    <td>@item.ProductID</td>
+                    <td>@item.Type</td>
+                    <td>@item.AirTemperature</td>
+                    <td>@item.ProcessTemperature</td>
+                    <td>@item.RotationalSpeed</td>
+                    <td>@item.Torque</td>
+                    <td>@item.ToolWear</td>
+                    <td>@item.PredictionFromModel</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-    private async Task HandleValidSubmit()
-    {
-        await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
-        maintenanceModelsList.Insert(0, newMaintenanceModel); // Insert at the beginning to show the most recent entry
-        newMaintenanceModel = new PredictiveMaintenanceModel(); // Reset the form
-        UpdatePaginatedList();
-    }
-
-    private void UpdatePaginatedList()
-    {
-        paginatedMaintenanceModelsList = maintenanceModelsList
-            .Skip(currentPageIndex * PageSize)
-            .Take(PageSize)
-            .ToList();
-    }
-
-    private void NextPage()
-    {
-        currentPageIndex++;
-        UpdatePaginatedList();
-    }
-
-    private void PreviousPage()
-    {
-        if (currentPageIndex > 0)
-        {
-            currentPageIndex--;
-            UpdatePaginatedList();
-        }
-    }
-
-    private bool HasPreviousPage => currentPageIndex > 0;
-    private bool HasNextPage => (currentPageIndex + 1) * PageSize < maintenanceModelsList.Count;
+    <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
+    <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
 }
+
