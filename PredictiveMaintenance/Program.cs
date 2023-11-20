@@ -6,6 +6,7 @@ using PredictiveMaintenance.Database;
 using PredictiveMaintenance.Interfaces;
 using PredictiveMaintenance.Models;
 using PredictiveMaintenance.Services;
+using Microsoft.AspNetCore.StaticFiles; // Add this for FileExtensionContentTypeProvider
 
 namespace PredictiveMaintenance
 {
@@ -23,6 +24,7 @@ namespace PredictiveMaintenance
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<IPeopleService, PeopleService>();
             builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+
             // Add a scope here to ensure the database is created
             var scopeFactory = builder.Services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
@@ -41,7 +43,21 @@ namespace PredictiveMaintenance
             }
 
             app.UseHttpsRedirection();
+
+            // Configure the ContentTypeProvider for .dae files
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".dae"] = "text/xml";
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider
+            });
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider
+            });
             app.UseStaticFiles();
+            
             app.UseRouting();
 
             app.MapBlazorHub();

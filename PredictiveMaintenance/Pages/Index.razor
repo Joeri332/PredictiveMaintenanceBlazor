@@ -1,9 +1,31 @@
 ﻿@page "/"
+@inject IJSRuntime JSRuntime
+<div id="threejscontainer" style="width: 600px; height: 600px;"></div>
+<div>
+    <button type="button" class="btn btn-primary" @onclick="MakeRedGlow">
+        Make Red Glow
+    </button>
+    <button type="button" class="btn btn-primary" @onclick="DisableRedGlow">
+        DisableRedGLow
+    </button>
+</div>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+          
+            await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.load");
+        }
+    }
 
-<PageTitle>Index</PageTitle>
+    public async Task MakeRedGlow()
+    {
+        await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.applyRedGlow");
+    }
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+    public async Task DisableRedGlow()
+    {
+        await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.disabledRedGlow");
+    }
+}
