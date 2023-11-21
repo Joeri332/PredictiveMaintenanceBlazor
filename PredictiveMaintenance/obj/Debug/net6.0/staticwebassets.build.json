@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "t1BkFgGBFXyMMbKzxHnbZHYguV5rC123tIQ4hF+E1jQ=",
+  "Hash": "1pnt5QK9sGa7eX1vn6wbvzVNUYuBAC3GzJHmnRHw56Y=",
   "Source": "PredictiveMaintenance",
   "BasePath": "_content/PredictiveMaintenance",
   "Mode": "Default",
@@ -471,44 +471,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\models\\stormtrooper.dae"
-    },
-    {
-      "Identity": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\models\\Stormtrooper_D.jpg",
-      "SourceId": "PredictiveMaintenance",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\",
-      "BasePath": "_content/PredictiveMaintenance",
-      "RelativePath": "models/Stormtrooper_D.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\models\\Stormtrooper_D.jpg"
-    },
-    {
-      "Identity": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\models\\zebra.dae",
-      "SourceId": "PredictiveMaintenance",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\",
-      "BasePath": "_content/PredictiveMaintenance",
-      "RelativePath": "models/zebra.dae",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\models\\zebra.dae"
     }
   ]
 }

@@ -2,63 +2,80 @@
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
 @inject IMaintenanceService MaintenanceService
+@inject IPredictionService PredictionService
+@inject IJSRuntime JSRuntime
 
-<h3>Add New Maintenance Record</h3>
+<div class="d-flex justify-content-between">
+    <!-- Maintenance Record Form -->
+    <div>
+        <h3>Add New Maintenance Record</h3>
+        <EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-<EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
-    <!-- Form inputs go here -->
-</EditForm>
-<EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+            <!-- Form inputs -->
+            <div class="form-group">
+                <label for="udi">UDI:</label>
+                <InputNumber id="udi" class="form-control" @bind-Value="newMaintenanceModel.UDI" />
+            </div>
 
-    <div class="form-group">
-        <label for="udi">UDI:</label>
-        <InputNumber id="udi" class="form-control" @bind-Value="newMaintenanceModel.UDI" />
+            <div class="form-group">
+                <label for="productID">Product ID:</label>
+                <InputText id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" />
+            </div>
+
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <InputText id="type" class="form-control" @bind-Value="newMaintenanceModel.Type" />
+            </div>
+
+            <div class="form-group">
+                <label for="airTemperature">Air Temperature:</label>
+                <InputNumber id="airTemperature" class="form-control" @bind-Value="newMaintenanceModel.AirTemperature" />
+            </div>
+
+            <div class="form-group">
+                <label for="processTemperature">Process Temperature:</label>
+                <InputNumber id="processTemperature" class="form-control" @bind-Value="newMaintenanceModel.ProcessTemperature" />
+            </div>
+
+            <div class="form-group">
+                <label for="rotationalSpeed">Rotational Speed:</label>
+                <InputNumber id="rotationalSpeed" class="form-control" @bind-Value="newMaintenanceModel.RotationalSpeed" />
+            </div>
+
+            <div class="form-group">
+                <label for="torque">Torque:</label>
+                <InputNumber id="torque" class="form-control" @bind-Value="newMaintenanceModel.Torque" />
+            </div>
+
+            <div class="form-group">
+                <label for="toolWear">Tool Wear:</label>
+                <InputNumber id="toolWear" class="form-control" @bind-Value="newMaintenanceModel.ToolWear" />
+            </div>
+
+            <div class="form-group">
+                <label for="predictionFromModel">Prediction From Model:</label>
+                <InputNumber id="predictionFromModel" class="form-control" @bind-Value="newMaintenanceModel.PredictionFromModel" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </EditForm>
     </div>
 
-    <div class="form-group">
-        <label for="productID">Product ID:</label>
-        <InputText id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" />
+    <!-- Three.js Visualization and Controls -->
+    <div>
+        <div id="threejscontainer" style="width: 600px; height: 600px;"></div>
+        <div>
+            <button type="button" class="btn btn-primary" @onclick="MakeRedGlow">
+                Make Red Glow
+            </button>
+            <button type="button" class="btn btn-primary" @onclick="DisableRedGlow">
+                Disable Red Glow
+            </button>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="type">Type:</label>
-        <InputText id="type" class="form-control" @bind-Value="newMaintenanceModel.Type" />
-    </div>
-
-    <div class="form-group">
-        <label for="airTemperature">Air Temperature:</label>
-        <InputNumber id="airTemperature" class="form-control" @bind-Value="newMaintenanceModel.AirTemperature" />
-    </div>
-
-    <div class="form-group">
-        <label for="processTemperature">Process Temperature:</label>
-        <InputNumber id="processTemperature" class="form-control" @bind-Value="newMaintenanceModel.ProcessTemperature" />
-    </div>
-
-    <div class="form-group">
-        <label for="rotationalSpeed">Rotational Speed:</label>
-        <InputNumber id="rotationalSpeed" class="form-control" @bind-Value="newMaintenanceModel.RotationalSpeed" />
-    </div>
-
-    <div class="form-group">
-        <label for="torque">Torque:</label>
-        <InputNumber id="torque" class="form-control" @bind-Value="newMaintenanceModel.Torque" />
-    </div>
-
-    <div class="form-group">
-        <label for="toolWear">Tool Wear:</label>
-        <InputNumber id="toolWear" class="form-control" @bind-Value="newMaintenanceModel.ToolWear" />
-    </div>
-
-    <div class="form-group">
-        <label for="predictionFromModel">Prediction From Model:</label>
-        <InputNumber id="predictionFromModel" class="form-control" @bind-Value="newMaintenanceModel.PredictionFromModel" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</EditForm>
+</div>
 
 <h3>Maintenance Records</h3>
 

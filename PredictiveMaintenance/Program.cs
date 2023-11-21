@@ -1,10 +1,6 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
-using PredictiveMaintenance.Data;
 using PredictiveMaintenance.Database;
 using PredictiveMaintenance.Interfaces;
-using PredictiveMaintenance.Models;
 using PredictiveMaintenance.Services;
 using Microsoft.AspNetCore.StaticFiles; // Add this for FileExtensionContentTypeProvider
 
@@ -19,13 +15,14 @@ namespace PredictiveMaintenance
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<WeatherForecastService>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<IPeopleService, PeopleService>();
             builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+            //By adding addhttpClient whenever this service is used, it makes sure it has an client in its constructor.
+            builder.Services.AddHttpClient<IPredictionService, PredictionService>();
 
-            // Add a scope here to ensure the database is created
+            // Add a scope to ensure the database is created
             var scopeFactory = builder.Services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
             {
@@ -46,7 +43,9 @@ namespace PredictiveMaintenance
 
             // Configure the ContentTypeProvider for .dae files
             var provider = new FileExtensionContentTypeProvider();
-            provider.Mappings[".dae"] = "text/xml";
+            //provider.Mappings[".dae"] = "text/xml";
+            provider.Mappings[".obj"] = "text/plain";
+
 
             app.UseStaticFiles(new StaticFileOptions
             {

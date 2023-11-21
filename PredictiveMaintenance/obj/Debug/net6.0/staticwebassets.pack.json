@@ -89,16 +89,8 @@
       "PackagePath": "staticwebassets\\models\\Baseball_ball.obj"
     },
     {
-      "Id": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\models\\Stormtrooper_D.jpg",
-      "PackagePath": "staticwebassets\\models\\Stormtrooper_D.jpg"
-    },
-    {
       "Id": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\models\\stormtrooper.dae",
       "PackagePath": "staticwebassets\\models\\stormtrooper.dae"
-    },
-    {
-      "Id": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\wwwroot\\models\\zebra.dae",
-      "PackagePath": "staticwebassets\\models\\zebra.dae"
     },
     {
       "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.PredictiveMaintenance.Microsoft.AspNetCore.StaticWebAssets.props",
