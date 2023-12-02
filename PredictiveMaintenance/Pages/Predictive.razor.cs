@@ -21,12 +21,13 @@ namespace PredictiveMaintenance.Pages
         private async Task HandleValidSubmit()
         {
             // This method gets the prediction from the api of python script.          
-           // int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
+            // int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
             //Setting the prediction to the value of the mode. because of the await method, this is only continues when having an answer.
             //newMaintenanceModel.PredictionFromModel = prediction;
             await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
 
-            if (newMaintenanceModel.PredictionFromModel >= 1 ) {
+            if (newMaintenanceModel.PredictionFromModel >= 1)
+            {
                 await MakeRedGlow();
             }
             else
@@ -60,7 +61,7 @@ namespace PredictiveMaintenance.Pages
                 currentPageIndex--;
                 UpdatePaginatedList();
             }
-        }  
+        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {

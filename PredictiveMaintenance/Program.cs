@@ -21,6 +21,7 @@ namespace PredictiveMaintenance
             builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
             //By adding addhttpClient whenever this service is used, it makes sure it has an client in its constructor.
             builder.Services.AddHttpClient<IPredictionService, PredictionService>();
+            builder.Services.AddScoped<IOperatorFeedbackService, OperatorFeedbackService>();
 
             // Add a scope to ensure the database is created
             var scopeFactory = builder.Services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
@@ -43,8 +44,8 @@ namespace PredictiveMaintenance
 
             // Configure the ContentTypeProvider for .dae files
             var provider = new FileExtensionContentTypeProvider();
-            //provider.Mappings[".dae"] = "text/xml";
-            provider.Mappings[".obj"] = "text/plain";
+            provider.Mappings[".dae"] = "text/xml";
+            //provider.Mappings[".obj"] = "text/plain";
 
 
             app.UseStaticFiles(new StaticFileOptions
@@ -56,7 +57,7 @@ namespace PredictiveMaintenance
                 ContentTypeProvider = provider
             });
             app.UseStaticFiles();
-            
+
             app.UseRouting();
 
             app.MapBlazorHub();

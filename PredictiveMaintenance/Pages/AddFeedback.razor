@@ -1,0 +1,109 @@
+﻿@page "/add-feedback"
+@using PredictiveMaintenance.Interfaces
+@using PredictiveMaintenance.Models
+@inject IOperatorFeedbackService OperatorFeedbackService
+@inject IMaintenanceService MaintenanceDataService // Assuming this is the correct service for retrieving maintenance data
+
+<h3>Add Operator Feedback</h3>
+
+@if (feedbackGiven == null || maintenanceRecords == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+
+    <h3>Maintenance Records</h3>
+
+    @if (feedbackGiven.Count > 0)
+
+{
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Feedback</th>                   
+                    <th>PredictionFromModel</th>
+                    <th>IsPredictionCorrect</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var feedback in feedbackGiven)
+                {
+                    <tr style="background-color: @(!feedback.IsPredictionCorrect ? "#ffcccc" : "transparent")">
+                        <td>@feedback.PredictiveMaintenance.ProductID</td>
+                        <td>@feedback.SolutionUsed</td>
+                        <td>@feedback.PredictiveMaintenance.PredictionFromModel</td>
+                        <td>@feedback.IsPredictionCorrect</td>     
+                    </tr>
+                }
+            </tbody>
+        </table>
+  }
+    else
+    {
+        <p>No feedback given yet.</p>
+    }
+
+    if (maintenanceRecords.Count == 0)
+    {
+        <p>No maintenance records found.</p>
+    }
+    else
+    {
+        <EditForm Model="@feedback" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="maintenanceRecord">Select Maintenance Record:</label>
+                <select id="maintenanceRecord" @bind="feedback.UDI" class="form-control">
+                    <option value="">-- Select a Record --</option>
+                    @foreach (var record in maintenanceRecords)
+                    {
+                        <option value="@record.UDI">@record.ProductID</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="isPredictionCorrect">Was the Prediction Correct?</label>
+                <InputCheckbox id="isPredictionCorrect" @bind-Value="feedback.IsPredictionCorrect" class="form-check-input" />
+            </div>
+
+            <div class="form-group">
+                <label for="solutionUsed">Solution Used:</label>
+                <InputTextArea id="solutionUsed" @bind-Value="feedback.SolutionUsed" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        </EditForm>
+    }
+}
+
+@code {
+    private OperatorFeedback feedback = new OperatorFeedback();
+    private List<PredictiveMaintenanceModel> maintenanceRecords;
+    private List<OperatorFeedback> feedbackGiven;
+
+    protected override async Task OnInitializedAsync()
+    {
+        maintenanceRecords = await MaintenanceDataService.GetMaintenanceDataAsync() ?? new List<PredictiveMaintenanceModel>();
+        feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        bool result = await OperatorFeedbackService.CreateFeedbackAsync(feedback);
+        if (result)
+        {
+            // Handle successful submission, e.g., show a confirmation message or clear the form
+            feedback = new OperatorFeedback(); // Reset the form for new feedback
+            feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>(); // Refresh the list
+        }
+        else
+        {
+            // Handle the error case, e.g., show an error message
+        }
+    }
+}

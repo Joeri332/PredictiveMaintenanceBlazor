@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\PredictiveMaintenance.csproj": {}
+    "C:\\Users\\Joeri\\source\\repos\\newest\\PredictiveMaintenance\\PredictiveMaintenance.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\PredictiveMaintenance.csproj": {
+    "C:\\Users\\Joeri\\source\\repos\\newest\\PredictiveMaintenance\\PredictiveMaintenance.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\PredictiveMaintenance.csproj",
+        "projectUniqueName": "C:\\Users\\Joeri\\source\\repos\\newest\\PredictiveMaintenance\\PredictiveMaintenance.csproj",
         "projectName": "PredictiveMaintenance",
-        "projectPath": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\PredictiveMaintenance.csproj",
-        "packagesPath": "C:\\Users\\nietv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nietv\\source\\repos\\PredictiveMaintenance\\PredictiveMaintenance\\obj\\",
+        "projectPath": "C:\\Users\\Joeri\\source\\repos\\newest\\PredictiveMaintenance\\PredictiveMaintenance.csproj",
+        "packagesPath": "C:\\Users\\Joeri\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Joeri\\source\\repos\\newest\\PredictiveMaintenance\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\nietv\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Joeri\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

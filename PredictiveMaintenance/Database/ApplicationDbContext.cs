@@ -9,5 +9,6 @@
 
         public DbSet<Person> People { get; set; }
         public DbSet<PredictiveMaintenanceModel> MaintenanceData { get; set; }
+        public DbSet<OperatorFeedback> OperatorFeedbacks { get; set; }
     }
 }
