@@ -1,4 +1,5 @@
 ﻿@page "/Predictive-maintenance-entry"
+@using PredictiveMaintenance.Enums
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
 @inject IMaintenanceService MaintenanceService
@@ -93,6 +94,7 @@
                 <th>Torque</th>
                 <th>Tool Wear</th>
                 <th>Prediction From Model</th>
+                <th>Failure type</th>
             </tr>
         </thead>
         <tbody>
@@ -108,6 +110,7 @@
                     <td>@item.Torque</td>
                     <td>@item.ToolWear</td>
                     <td>@item.PredictionFromModel</td>
+                    <td>@item.FailuresEnums.GetDescription()</td>
                 </tr>
             }
         </tbody>

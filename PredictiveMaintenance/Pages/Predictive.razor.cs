@@ -1,4 +1,5 @@
 using Microsoft.JSInterop;
+using PredictiveMaintenance.Enums;
 using PredictiveMaintenance.Models;
 using PredictiveMaintenance.Services;
 
@@ -21,24 +22,23 @@ namespace PredictiveMaintenance.Pages
         private async Task HandleValidSubmit()
         {
             // This method gets the prediction from the api of python script.          
-            // int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
-            //Setting the prediction to the value of the mode. because of the await method, this is only continues when having an answer.
-            //newMaintenanceModel.PredictionFromModel = prediction;
-            await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
-
-            if (newMaintenanceModel.PredictionFromModel >= 1)
+            int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());      
+           
+            newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
+            if (prediction > 0 )
             {
                 await MakeRedGlow();
+                newMaintenanceModel.PredictionFromModel = 1;
             }
             else
             {
                 await DisableRedGlow();
             }
-
-            maintenanceModelsList.Insert(0, newMaintenanceModel); // Insert at the beginning to show the most recent entry
-            newMaintenanceModel = new PredictiveMaintenanceModel(); // Reset the form
+            await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
+            maintenanceModelsList.Insert(0, newMaintenanceModel); 
+            newMaintenanceModel = new PredictiveMaintenanceModel();
             UpdatePaginatedList();
-        }
+        }    
 
         private void UpdatePaginatedList()
         {

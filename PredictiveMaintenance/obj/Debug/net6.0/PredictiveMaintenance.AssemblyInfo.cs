@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PredictiveMaintenance")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+983ecb7ac002828d419a936adecad2d609541b59")]
 [assembly: System.Reflection.AssemblyProductAttribute("PredictiveMaintenance")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PredictiveMaintenance")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

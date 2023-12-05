@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PredictiveMaintenance.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace PredictiveMaintenance.Models
@@ -16,6 +17,7 @@ namespace PredictiveMaintenance.Models
         public double Torque { get; set; }
         public int ToolWear { get; set; }
         public int PredictionFromModel { get; set; }
+        public FailuresEnums FailuresEnums { get; set; }
 
         public PredictionPythonDto ToDto()
         {
