@@ -1,9 +1,5 @@
 ﻿using PredictiveMaintenance.Interfaces;
 using PredictiveMaintenance.Models;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace PredictiveMaintenance.Services
 {
@@ -24,7 +20,7 @@ namespace PredictiveMaintenance.Services
 
         public async Task<List<string>> GetCsvFileData(DateTime dateTime)
         {
-            return await PostJsonRequest<List<string>>($"{PredictionServiceHelpers.GetListCsvFiles}", dateTime);
+            return await PostJsonRequest<List<string>>($"{PredictionServiceHelpers.ListCsvFiles}", dateTime);
         }
 
         public async Task<List<string>> GetListOfModelsAsync()
@@ -34,7 +30,7 @@ namespace PredictiveMaintenance.Services
 
         public async Task<bool> GetNewModelAsync()
         {
-            var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.GetNewModel}", new { });
+            var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.LoadModel}", new { });
             return response.IsSuccessStatusCode;
         }
 

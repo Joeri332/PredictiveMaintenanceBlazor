@@ -8,7 +8,7 @@
     //Model creation
     public const string GetListOfModels = "list_Models";
     public const string RetrainModel = "retrain_model";
-    public const string GetNewModel = "load_model";
+    public const string LoadModel = "load_model";
 
     //Csv File creation
     public const string ListCsvFiles = "list_csv_files";
