@@ -1,0 +1,131 @@
+﻿@page "/create-model"
+@using PredictiveMaintenance.Interfaces
+@using PredictiveMaintenance.Models
+@inject IJSRuntime JSRuntime
+@inject IPredictionService PredictionService
+
+<h3>Create Model</h3>
+
+<div class="row">
+    @if (predictionResult != null)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">Prediction Result</div>
+                <div class="card-body">
+                    <p>@predictionResult</p>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (csvFiles != null)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">CSV Files</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var file in csvFiles)
+                        {
+                            <li class="list-group-item">@file</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row">
+    @if (modelList != null)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">Model List</div>
+                <div class="card-body">
+                    @foreach (var model in modelList)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="@model"
+                                   checked="@selectedModels[model]"
+                                   @onchange="@(e => OnModelCheckboxChanged(model, (bool)e.Value))" />
+                            <label class="form-check-label">@model</label>
+                        </div>
+                    }
+                    <button class="btn btn-primary mt-2" @onclick="SetModelToCalcWith">Set Model to Calc</button>
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success">
+                            @successMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private int? predictionResult;
+    private List<string> csvFiles;
+    private List<string> modelList;
+    private Dictionary<string, bool> selectedModels = new Dictionary<string, bool>();
+    private string successMessage;
+
+    protected async override Task OnInitializedAsync()
+    {
+       // await ListCsvFiles();
+        await ListModels();
+
+        if (modelList != null)
+        {
+            foreach (var model in modelList)
+            {
+                selectedModels[model] = false;
+            }
+        }
+    }
+
+    private async Task SetModelToCalcWith()
+    {
+        var selectedModel = selectedModels.FirstOrDefault(m => m.Value).Key;
+        if (!string.IsNullOrEmpty(selectedModel))
+        {
+            var success = await PredictionService.SetModelToCalc(selectedModel);
+            if (success)
+            {
+                successMessage = $"Model '{selectedModel}' has been successfully set for calculations.";
+            }
+            else
+            {
+                Console.WriteLine($"Failed to set model {selectedModel} to calc");
+                successMessage = $"Failed to set model '{selectedModel}'. Please try again.";
+            }
+
+            await InvokeAsync(StateHasChanged); // Refresh UI to display the success message
+        }
+    }
+
+    private async Task OnModelCheckboxChanged(string model, bool isChecked)
+    {
+        foreach (var key in selectedModels.Keys.ToList())
+        {
+            selectedModels[key] = false;
+        }
+
+        selectedModels[model] = isChecked;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ListCsvFiles()
+    {
+        DateTime dateTime = DateTime.Now;
+        csvFiles = await PredictionService.GetCsvFileData(dateTime);
+    }
+
+    private async Task ListModels()
+    {
+        modelList = await PredictionService.GetListOfModelsAsync();
+    }
+}

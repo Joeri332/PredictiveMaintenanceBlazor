@@ -1,5 +1,10 @@
-﻿using PredictiveMaintenance.Interfaces;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using PredictiveMaintenance.Interfaces;
 using PredictiveMaintenance.Models;
+using System;
 
 namespace PredictiveMaintenance.Services
 {
@@ -25,13 +30,34 @@ namespace PredictiveMaintenance.Services
 
         public async Task<List<string>> GetListOfModelsAsync()
         {
-            return await PostJsonRequest<List<string>>($"{PredictionServiceHelpers.GetListOfModels}", null);
+            var response = await _httpClient.GetAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.GetListOfModels}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                // Use an anonymous type to match the JSON structure
+                var result = JsonConvert.DeserializeAnonymousType(content, new { models = new List<string>() });
+
+                return result.models;
+            }
+            else
+            {
+                throw new HttpRequestException($"Request failed with status code: {response.StatusCode}");
+            }
         }
 
         public async Task<bool> GetNewModelAsync()
         {
             var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.LoadModel}", new { });
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> SetModelToCalc(string ModelName)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.SetModel}", ModelName);
+            response.EnsureSuccessStatusCode();
+
+            return true;
         }
 
         private async Task<T> PostJsonRequest<T>(string url, object data)
@@ -48,6 +74,7 @@ namespace PredictiveMaintenance.Services
             return result is null ? throw new InvalidOperationException("Failed to deserialize response content") : result;
         }
 
+     
 
         public class PredictionResult
         {

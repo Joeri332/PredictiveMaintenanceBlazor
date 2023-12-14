@@ -160,3 +160,4 @@ C:\Users\Joeri\source\repos\newest\PredictiveMaintenance\obj\Debug\net6.0\refint
 C:\Users\Joeri\source\repos\newest\PredictiveMaintenance\obj\Debug\net6.0\PredictiveMaintenance.pdb
 C:\Users\Joeri\source\repos\newest\PredictiveMaintenance\obj\Debug\net6.0\PredictiveMaintenance.genruntimeconfig.cache
 C:\Users\Joeri\source\repos\newest\PredictiveMaintenance\obj\Debug\net6.0\ref\PredictiveMaintenance.dll
+C:\Users\Joeri\source\repos\newest\PredictiveMaintenance\bin\Debug\net6.0\Newtonsoft.Json.dll

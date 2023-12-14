@@ -1,4 +1,5 @@
 ﻿@page "/add-feedback"
+@using PredictiveMaintenance.Enums
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
 @inject IOperatorFeedbackService OperatorFeedbackService
@@ -16,14 +17,14 @@ else
     <h3>Maintenance Records</h3>
 
     @if (feedbackGiven.Count > 0)
-
 {
         <table class="table">
             <thead>
                 <tr>
                     <th>Product ID</th>
-                    <th>Feedback</th>                   
+                    <th>Feedback</th>
                     <th>PredictionFromModel</th>
+                    <th>FailureType</th>
                     <th>IsPredictionCorrect</th>
                 </tr>
             </thead>
@@ -34,6 +35,7 @@ else
                         <td>@feedback.PredictiveMaintenance.ProductID</td>
                         <td>@feedback.SolutionUsed</td>
                         <td>@feedback.PredictiveMaintenance.PredictionFromModel</td>
+                        <td>@feedback.PredictiveMaintenance.FailuresEnums</td>
                         <td>@feedback.IsPredictionCorrect</td>     
                     </tr>
                 }
@@ -65,6 +67,17 @@ else
                     }
                 </select>
             </div>
+            <div class="form-group">
+                <label for="failureType">Failure Type:</label>
+                <select id="failureType" @bind="feedback.Failures" class="form-control">
+                    <option value="">-- Select a Failure Type --</option>
+                    @foreach (FailuresEnums failureType in Enum.GetValues(typeof(FailuresEnums)))
+                    {
+                        <option value="@failureType">@EnumExtensions.GetDescription(failureType)</option>
+                    }
+                </select>
+            </div>
+
 
             <div class="form-group">
                 <label for="isPredictionCorrect">Was the Prediction Correct?</label>
