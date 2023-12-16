@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PredictiveMaintenance.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PredictiveMaintenance.Models
 {
@@ -18,6 +19,9 @@ namespace PredictiveMaintenance.Models
         public int ToolWear { get; set; }
         public int PredictionFromModel { get; set; }
         public FailuresEnums FailuresEnums { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public PredictionPythonDto ToDto()
         {
