@@ -22,7 +22,7 @@ namespace PredictiveMaintenance
             //By adding addhttpClient whenever this service is used, it makes sure it has an client in its constructor.
             builder.Services.AddHttpClient<IPredictionService, PredictionService>();
             builder.Services.AddScoped<IOperatorFeedbackService, OperatorFeedbackService>();
-
+            builder.Services.AddSingleton<ModelSelectionService>();
             // Add a scope to ensure the database is created
             var scopeFactory = builder.Services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())

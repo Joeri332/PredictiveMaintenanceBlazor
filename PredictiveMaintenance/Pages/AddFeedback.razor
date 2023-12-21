@@ -3,7 +3,7 @@
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
 @inject IOperatorFeedbackService OperatorFeedbackService
-@inject IMaintenanceService MaintenanceDataService // Assuming this is the correct service for retrieving maintenance data
+@inject IMaintenanceService MaintenanceDataService 
 
 <h3>Add Operator Feedback</h3>
 
@@ -98,25 +98,53 @@ else
     private OperatorFeedback feedback = new OperatorFeedback();
     private List<PredictiveMaintenanceModel> maintenanceRecords;
     private List<OperatorFeedback> feedbackGiven;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        maintenanceRecords = await MaintenanceDataService.GetMaintenanceDataAsync() ?? new List<PredictiveMaintenanceModel>();
-        feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>();
+        try
+        {
+            maintenanceRecords = await MaintenanceDataService.GetMaintenanceDataAsync() ?? new List<PredictiveMaintenanceModel>();
+            feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error initializing data: " + ex.Message;
+        }
     }
 
     private async Task HandleValidSubmit()
     {
-        bool result = await OperatorFeedbackService.CreateFeedbackAsync(feedback);
-        if (result)
+        try
         {
-            // Handle successful submission, e.g., show a confirmation message or clear the form
-            feedback = new OperatorFeedback(); // Reset the form for new feedback
-            feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>(); // Refresh the list
+            bool result = await OperatorFeedbackService.CreateFeedbackAsync(feedback);
+            if (result)
+            {
+                feedback = new OperatorFeedback(); // Reset the form for new feedback
+                feedbackGiven = await OperatorFeedbackService.GetFeedbacksWithProductIdAsync() ?? new List<OperatorFeedback>(); // Refresh the list
+    // Optionally, include logic to show a success message
+            }
+            else
+            {
+    // Handle the error case, e.g., show an error message
+                errorMessage = "Feedback submission failed.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Handle the error case, e.g., show an error message
+            errorMessage = "Error submitting feedback: " + ex.Message;
         }
     }
+
+    // UI Component for displaying error messages
+    private RenderFragment DisplayErrorMessage() => builder =>
+    {
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "error-message");
+            builder.AddContent(2, errorMessage);
+            builder.CloseElement();
+        }
+    };
 }

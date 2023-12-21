@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PredictiveMaintenance.Enums;
 using PredictiveMaintenance.Models;
+using PredictiveMaintenance.Services;
 
 namespace PredictiveMaintenance.Pages
 {
@@ -11,45 +13,76 @@ namespace PredictiveMaintenance.Pages
         private List<PredictiveMaintenanceModel> paginatedMaintenanceModelsList;
         private int currentPageIndex = 0;
         private const int PageSize = 5;
+        private string errorMessage;
 
         protected override async Task OnInitializedAsync()
         {
-            maintenanceModelsList = await MaintenanceService.GetMaintenanceDataAsync();
-            UpdatePaginatedList();
+            try
+            {
+                maintenanceModelsList = await MaintenanceService.GetMaintenanceDataAsync();
+                UpdatePaginatedList();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Error loading data: " + ex.Message;
+            }
         }
 
         private async Task HandleValidSubmit()
         {
-            // This method gets the prediction from the api of python script.          
-            int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
+            try
+            {
+                int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
 
-            newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-            await MakeRed(prediction);
-            await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
-            maintenanceModelsList.Insert(0, newMaintenanceModel);
-            newMaintenanceModel = new PredictiveMaintenanceModel();
-            UpdatePaginatedList();
+                if (!ModelSelectionService.IsMultiClass)
+                {
+                    newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
+                }
+                else
+                {
+                    newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(6);
+                }
+     
+                await MakeRed(prediction);
+                await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
+                maintenanceModelsList.Insert(0, newMaintenanceModel);
+                newMaintenanceModel = new PredictiveMaintenanceModel();
+                UpdatePaginatedList();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Error processing submission: " + ex.Message;
+            }
         }
 
         private async Task MakeRed(int prediction)
         {
-            if (prediction > 0)
+            try
             {
-                await MakeRedGlow();
-                newMaintenanceModel.PredictionFromModel = 1;
+                if (prediction > 0)
+                {
+                    await MakeRedGlow();
+                    newMaintenanceModel.PredictionFromModel = 1;
+                }
+                else
+                {
+                    await DisableRedGlow();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await DisableRedGlow();
+                errorMessage = "Error updating UI: " + ex.Message;
             }
         }
 
-        private void UpdatePaginatedList()
+        private Task UpdatePaginatedList()
         {
             paginatedMaintenanceModelsList = maintenanceModelsList
                 .Skip(currentPageIndex * PageSize)
                 .Take(PageSize)
                 .ToList();
+
+            return Task.CompletedTask;
         }
 
         private void NextPage()
@@ -69,9 +102,16 @@ namespace PredictiveMaintenance.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
+            try
             {
-                await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.load");
+                if (firstRender)
+                {
+                    await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.load");
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Error in after render processing: " + ex.Message;
             }
         }
 
@@ -85,63 +125,68 @@ namespace PredictiveMaintenance.Pages
             await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.disabledRedGlow");
         }
 
+        private RenderFragment DisplayErrorMessage() => builder =>
+        {
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                builder.OpenElement(0, "div");
+                builder.AddAttribute(1, "class", "error-message");
+                builder.AddContent(2, errorMessage);
+                builder.CloseElement();
+            }
+        };
+
         private bool HasPreviousPage => currentPageIndex > 0;
         private bool HasNextPage => (currentPageIndex + 1) * PageSize < maintenanceModelsList.Count;
-        /*
+
         private async void GenerateData(int a)
         {
             PredictiveMaintenanceModel newModel = new PredictiveMaintenanceModel();
             int prediction;
             switch (a)
             {
-                case 1:      
+                case 1:
                     newModel = GenerateFakeModels.GeneratePWF();
-                    prediction = await PredictionService.GetPredictionAsync(newModel.ToDto());
-                    newModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-                    await MakeRed(prediction);
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-                    UpdatePaginatedList();
+
+                    // Run both methods concurrently
+                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
                     break;
                 case 2:
                     newModel = GenerateFakeModels.GenerateTWF();
-                    prediction = await PredictionService.GetPredictionAsync(newModel.ToDto());
-                    newModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-                    await MakeRed(prediction);
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-                    UpdatePaginatedList();
+
+                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
                     break;
                 case 3:
                     newModel = GenerateFakeModels.GenerateOSF();
-                    prediction = await PredictionService.GetPredictionAsync(newModel.ToDto());
-                    newModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-                    await MakeRed(prediction);
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-                    UpdatePaginatedList();
+
+                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
                     break;
                 case 4:
                     newModel = GenerateFakeModels.GenerateHDF();
-                    prediction = await PredictionService.GetPredictionAsync(newModel.ToDto());
-                    newModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-                    await MakeRed(prediction);
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-                    UpdatePaginatedList();
+
+                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
                     break;
                 case 5:
                     newModel = GenerateFakeModels.GenerateRNF();
-                    prediction = await PredictionService.GetPredictionAsync(newModel.ToDto());
-                    newModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
-                    await MakeRed(prediction);
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-                    UpdatePaginatedList();
+
+                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
                     break;
                 default:
                     // Handle the case when 'a' is not in the range [1, 5]
                     break;
-            }*/
+            }
+
+
+        }
     }
 }

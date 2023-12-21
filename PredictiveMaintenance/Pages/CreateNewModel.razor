@@ -1,10 +1,19 @@
 ﻿@page "/create-model"
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
+@using PredictiveMaintenance.Services
 @inject IJSRuntime JSRuntime
 @inject IPredictionService PredictionService
+@inject ModelSelectionService ModelSelectionService
 
 <h3>Create Model</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
 
 <div class="row">
     @if (predictionResult != null)
@@ -72,60 +81,96 @@
     private List<string> modelList;
     private Dictionary<string, bool> selectedModels = new Dictionary<string, bool>();
     private string successMessage;
+    private string errorMessage;
 
     protected async override Task OnInitializedAsync()
     {
-       // await ListCsvFiles();
-        await ListModels();
-
-        if (modelList != null)
+        try
         {
-            foreach (var model in modelList)
+            //await ListCsvFiles();
+            await ListModels();
+
+            if (modelList != null)
             {
-                selectedModels[model] = false;
+                foreach (var model in modelList)
+                {
+                    selectedModels[model] = false;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Initialization Error: " + ex.Message;
         }
     }
 
     private async Task SetModelToCalcWith()
     {
-        var selectedModel = selectedModels.FirstOrDefault(m => m.Value).Key;
-        if (!string.IsNullOrEmpty(selectedModel))
+        try
         {
-            var success = await PredictionService.SetModelToCalc(selectedModel);
-            if (success)
+            var selectedModel = selectedModels.FirstOrDefault(m => m.Value).Key;
+            if (!string.IsNullOrEmpty(selectedModel))
             {
-                successMessage = $"Model '{selectedModel}' has been successfully set for calculations.";
-            }
-            else
-            {
-                Console.WriteLine($"Failed to set model {selectedModel} to calc");
-                successMessage = $"Failed to set model '{selectedModel}'. Please try again.";
-            }
+                var success = await PredictionService.SetModelToCalc(selectedModel);
+                if (success)
+                {
+                    successMessage = $"Model '{selectedModel}' has been successfully set for calculations.";
+                    ModelSelectionService.SetModel(selectedModel);
+                }
+                else
+                {
+                    successMessage = $"Failed to set model '{selectedModel}'. Please try again.";
+                }
 
-            await InvokeAsync(StateHasChanged); // Refresh UI to display the success message
+                await InvokeAsync(StateHasChanged); // Refresh UI to display the success message
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error setting model: " + ex.Message;
         }
     }
 
     private async Task OnModelCheckboxChanged(string model, bool isChecked)
     {
-        foreach (var key in selectedModels.Keys.ToList())
+        try
         {
-            selectedModels[key] = false;
-        }
+            foreach (var key in selectedModels.Keys.ToList())
+            {
+                selectedModels[key] = false;
+            }
 
-        selectedModels[model] = isChecked;
-        await InvokeAsync(StateHasChanged);
+            selectedModels[model] = isChecked;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error changing checkbox: " + ex.Message;
+        }
     }
 
     private async Task ListCsvFiles()
     {
-        DateTime dateTime = DateTime.Now;
-        csvFiles = await PredictionService.GetCsvFileData(dateTime);
+        try
+        {
+            DateTime dateTime = DateTime.Now;
+            csvFiles = await PredictionService.GetCsvFileData(dateTime);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error listing CSV files: " + ex.Message;
+        }
     }
 
     private async Task ListModels()
     {
-        modelList = await PredictionService.GetListOfModelsAsync();
+        try
+        {
+            modelList = await PredictionService.GetListOfModelsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error listing models: " + ex.Message;
+        }
     }
 }

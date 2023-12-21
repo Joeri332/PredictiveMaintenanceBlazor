@@ -2,9 +2,11 @@
 @using PredictiveMaintenance.Enums
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
+@using PredictiveMaintenance.Services
 @inject IMaintenanceService MaintenanceService
 @inject IPredictionService PredictionService
 @inject IJSRuntime JSRuntime
+@inject ModelSelectionService ModelSelectionService
 
 <div class="d-flex justify-content-between">
     <!-- Maintenance Record Form -->
@@ -61,13 +63,11 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
-            <!--
             <button class="btn btn-secondary" @onclick="() => GenerateData(1)">PWF</button>
             <button class="btn btn-secondary" @onclick="() => GenerateData(2)">TWF</button>
             <button class="btn btn-secondary" @onclick="() => GenerateData(3)">OSF</button>
             <button class="btn btn-secondary" @onclick="() => GenerateData(4)">HDF</button>
             <button class="btn btn-secondary" @onclick="() => GenerateData(5)">RNF</button>
-            -->
         </EditForm>
     </div>
 

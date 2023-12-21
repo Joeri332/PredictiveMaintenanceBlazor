@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using PredictiveMaintenance.Services
+@inherits LayoutComponentBase
+@inject ModelSelectionService ModelSelectionService
 
 <PageTitle>PredictiveMaintenance</PageTitle>
 
@@ -9,7 +11,12 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            @if (!string.IsNullOrEmpty(ModelSelectionService.SelectedModel))
+            {
+                <div class="selected-model-info">
+                    Selected Model: @ModelSelectionService.SelectedModel
+                </div>
+            }
         </div>
 
         <article class="content px-4">
@@ -17,3 +24,29 @@
         </article>
     </main>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ModelSelectionService.OnModelSelected += RefreshLayout;
+    }
+
+    private void RefreshLayout()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ModelSelectionService.OnModelSelected -= RefreshLayout;
+    }
+}
+
+<style>
+    .selected-model-info {
+        margin-right: auto; /* Align to the right side of the top row */
+        padding: 0.5rem;
+        background-color: #f0f0f0; /* Light grey background */
+        border-radius: 5px;
+    }
+</style>
