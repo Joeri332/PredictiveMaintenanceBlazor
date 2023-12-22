@@ -25,7 +25,20 @@ namespace PredictiveMaintenance.Services
 
         public async Task<List<string>> GetCsvFileData(DateTime dateTime)
         {
-            return await PostJsonRequest<List<string>>($"{PredictionServiceHelpers.ListCsvFiles}", dateTime);
+            var response = await _httpClient.GetAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.ListCsvFiles}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                // Correcting the expected structure to match the Flask response
+                var result = JsonConvert.DeserializeAnonymousType(content, new { files = new List<string>() });
+
+                return result.files; // Accessing the files property which contains the list of CSV files
+            }
+            else
+            {
+                throw new HttpRequestException($"Request failed with status code: {response.StatusCode}");
+            }
         }
 
         public async Task<List<string>> GetListOfModelsAsync()

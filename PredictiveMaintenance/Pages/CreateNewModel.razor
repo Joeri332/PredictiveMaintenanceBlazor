@@ -37,9 +37,12 @@
                     <ul class="list-group">
                         @foreach (var file in csvFiles)
                         {
-                            <li class="list-group-item">@file</li>
+                            <li class="list-group-item">
+                                <input type="checkbox" @bind="selectedCsvFiles[file]" /> @file
+                            </li>
                         }
                     </ul>
+                    <button class="btn btn-primary mt-2" @onclick="PerformActionWithCsv">Calculate new model</button>
                 </div>
             </div>
         </div>
@@ -80,6 +83,7 @@
     private List<string> csvFiles;
     private List<string> modelList;
     private Dictionary<string, bool> selectedModels = new Dictionary<string, bool>();
+    private Dictionary<string, bool> selectedCsvFiles = new Dictionary<string, bool>();
     private string successMessage;
     private string errorMessage;
 
@@ -87,8 +91,50 @@
     {
         try
         {
-            //await ListCsvFiles();
             await ListModels();
+
+            if (modelList != null)
+            {
+                foreach (var model in modelList)
+                {
+                    selectedModels[model] = false;
+                }
+            }
+
+            await ListCsvFiles();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Initialization Error: " + ex.Message;
+        }
+    }
+
+    private async Task ListCsvFiles()
+    {
+        try
+        {
+            DateTime dateTime = DateTime.Now; // Or any required date
+            csvFiles = await PredictionService.GetCsvFileData(dateTime);
+
+            if (csvFiles != null)
+            {
+                foreach (var file in csvFiles)
+                {
+                    selectedCsvFiles[file] = false; // Initialize all as not selected
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error listing CSV files: " + ex.Message;
+        }
+    }
+
+    private async Task ListModels()
+    {
+        try
+        {
+            modelList = await PredictionService.GetListOfModelsAsync();
 
             if (modelList != null)
             {
@@ -100,7 +146,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = "Initialization Error: " + ex.Message;
+            errorMessage = "Error listing models: " + ex.Message;
         }
     }
 
@@ -119,7 +165,7 @@
                 }
                 else
                 {
-                    successMessage = $"Failed to set model '{selectedModel}'. Please try again.";
+                    errorMessage = $"Failed to set model '{selectedModel}'. Please try again.";
                 }
 
                 await InvokeAsync(StateHasChanged); // Refresh UI to display the success message
@@ -131,46 +177,51 @@
         }
     }
 
+    private async Task PerformActionWithCsv()
+    {
+        try
+        {
+            var selectedFiles = selectedCsvFiles.Where(f => f.Value).Select(f => f.Key).ToList();
+
+            if (selectedFiles.Any())
+            {
+                // Implement your logic to perform action with selected CSV files
+                // Example: await SomeService.PerformActionWithCsv(selectedFiles);
+                successMessage = $"{selectedFiles.Count} files selected for the action.";
+            }
+            else
+            {
+                errorMessage = "No files selected.";
+            }
+
+            await InvokeAsync(StateHasChanged); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error performing action with selected CSV files: " + ex.Message;
+        }
+    }
+
     private async Task OnModelCheckboxChanged(string model, bool isChecked)
     {
         try
         {
-            foreach (var key in selectedModels.Keys.ToList())
+            if (selectedModels.ContainsKey(model))
             {
-                selectedModels[key] = false;
+                selectedModels[model] = isChecked;
+
+                // Deselect other models if this is how you want it to behave
+                foreach (var key in selectedModels.Keys.Where(k => k != model).ToList())
+                {
+                    selectedModels[key] = false;
+                }
             }
 
-            selectedModels[model] = isChecked;
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
             errorMessage = "Error changing checkbox: " + ex.Message;
-        }
-    }
-
-    private async Task ListCsvFiles()
-    {
-        try
-        {
-            DateTime dateTime = DateTime.Now;
-            csvFiles = await PredictionService.GetCsvFileData(dateTime);
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Error listing CSV files: " + ex.Message;
-        }
-    }
-
-    private async Task ListModels()
-    {
-        try
-        {
-            modelList = await PredictionService.GetListOfModelsAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Error listing models: " + ex.Message;
         }
     }
 }

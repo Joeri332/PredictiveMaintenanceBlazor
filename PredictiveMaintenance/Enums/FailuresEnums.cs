@@ -22,7 +22,7 @@ namespace PredictiveMaintenance.Enums
         [Description("Random Failure")]
         RNF = 5,
 
-        [Description("No Multi class used")]
+        [Description("No failure type defined")]
         NoMultiClass = 6,
     }
 }
