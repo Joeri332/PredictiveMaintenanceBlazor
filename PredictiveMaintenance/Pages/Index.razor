@@ -1,17 +1,21 @@
 ﻿@page "/"
+@using PredictiveMaintenance.Enums
 @inject IJSRuntime JSRuntime
 
-<svg height="200" width="300">
-    @for (int row = 0; row < 2; row++)
+<svg height="400" width="300">
+    @for (int row = 0; row < 4; row++)
     {
         for (int i = 0; i < 5; i++)
         {
             int circleNumber = row * 5 + i;
-            <circle cx="@((i * 50) + 25)" cy="@((row * 100) + 50)" r="20" stroke="black" stroke-width="3" fill="@GetColor(circleNumber)" id="@($"circle{circleNumber}")" />
-
-            if (i > 0) // Draw line to previous circle in the row
+            if (circleNumber < 20) // As there are 20 engines
             {
-                <line x1="@((i * 50) - 25)" y1="@((row * 100) + 50)" x2="@((i * 50) + 25)" y2="@((row * 100) + 50)" stroke="black" />
+                <circle cx="@((i * 50) + 25)" cy="@((row * 50) + 25)" r="20" stroke="black" stroke-width="3" fill="@GetColor((EngineEnums)(circleNumber + 1))" />
+                
+                if (i > 0) // Draw line to previous circle in the row
+                {
+                    <line x1="@((i * 50) - 25)" y1="@((row * 50) + 25)" x2="@((i * 50) + 25)" y2="@((row * 50) + 25)" stroke="black" />
+                }
             }
         }
 
@@ -19,44 +23,25 @@
         {
             for (int i = 0; i < 5; i++)
             {
-                <line x1="@((i * 50) + 25)" y1="50" x2="@((i * 50) + 25)" y2="150" stroke="black" />
+                <line x1="@((i * 50) + 25)" y1="@((row * 50) - 25)" x2="@((i * 50) + 25)" y2="@((row * 50) + 25)" stroke="black" />
             }
         }
     }
 </svg>
 
-<!-- UI for changing circle color -->
-<div>
-    <label for="circleNumber">Circle Number (0-9):</label>
-    <input type="number" id="circleNumber" @bind="selectedCircle" min="0" max="9" />
-
-    <label for="colorPicker">Color:</label>
-    <input type="color" id="colorPicker" @bind="selectedColor" />
-
-    <button @onclick="ApplyColorChange">Change Color</button>
-</div>
-
 @code {
-    private string[] colors = Enumerable.Repeat("blue", 10).ToArray();
-    private int selectedCircle;
-    private string selectedColor = "#0000ff"; // default color blue
+    private string[] colors = Enumerable.Repeat("grey", 20).ToArray(); // Initialize all engines to grey
 
-    private string GetColor(int circleNumber)
+    private string GetColor(EngineEnums engine)
     {
-        return colors[circleNumber];
+        return colors[(int)engine - 1];
     }
 
-    private void ApplyColorChange()
+    // Call this method to change the color of an engine
+    public void SetEngineColor(EngineEnums engine, bool shouldBeRed)
     {
-        ChangeCircleColor(selectedCircle, selectedColor);
-    }
-
-    public void ChangeCircleColor(int circleNumber, string color)
-    {
-        if (circleNumber >= 0 && circleNumber < colors.Length)
-        {
-            colors[circleNumber] = color;
-            StateHasChanged(); // Re-render the component with new color
-        }
+        int index = (int)engine - 1;
+        colors[index] = shouldBeRed ? "red" : "black";
+        StateHasChanged(); // Re-render the component with new color
     }
 }

@@ -8,6 +8,15 @@ namespace PredictiveMaintenance.Pages
 {
     public partial class Predictive
     {
+        private int svgWidth = 900;
+        private int svgHeight = 600;
+        private int circleRadius = 30;
+        private int circleSpacingX = 175;
+        private int circleSpacingY = 120;
+        private int startX = 50;
+        private int startY = 50;
+        private int strokeWidth = 3;
+
         private PredictiveMaintenanceModel newMaintenanceModel = new PredictiveMaintenanceModel();
         private List<PredictiveMaintenanceModel> maintenanceModelsList;
         private List<PredictiveMaintenanceModel> paginatedMaintenanceModelsList;
@@ -28,6 +37,26 @@ namespace PredictiveMaintenance.Pages
             }
         }
 
+        private string[] colors = Enumerable.Repeat("green", 20).ToArray();
+        string[] engineTexts = new string[20];
+        private string GetColor(EngineEnums engine)
+        {
+            return colors[(int)engine - 1];
+        }
+        public void SetEngineColor(EngineEnums engine, bool shouldBeRed)
+        {
+            int index = (int)engine;
+            if (index >= 0 && index < colors.Length) // Checking the bounds to prevent IndexOutOfRangeException
+            {
+                colors[index] = shouldBeRed ? "red" : "green";
+                StateHasChanged();
+            }
+            else
+            {
+                // Handle the case when index is out of range, such as logging or setting an error message
+                errorMessage = "Invalid engine index: " + index;
+            }
+        }
         private async Task HandleValidSubmit()
         {
             try
@@ -42,8 +71,10 @@ namespace PredictiveMaintenance.Pages
                 {
                     newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(6);
                 }
-     
-                await MakeRed(prediction);
+
+                newMaintenanceModel.PredictionFromModel = prediction;
+                var a = Enum.TryParse<EngineEnums>(newMaintenanceModel.ProductID, out var engineEnum);
+                SetEngineColor(engineEnum, prediction > 0);
                 await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
                 maintenanceModelsList.Insert(0, newMaintenanceModel);
                 newMaintenanceModel = new PredictiveMaintenanceModel();
@@ -149,37 +180,42 @@ namespace PredictiveMaintenance.Pages
                     newModel = GenerateFakeModels.GeneratePWF();
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-
+                    var enumParser = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum);
+                    SetEngineColor(engineEnum, newModel.PredictionFromModel > 0);
                     // Run both methods concurrently
-                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
+                    await Task.WhenAll(UpdatePaginatedList());
                     break;
                 case 2:
                     newModel = GenerateFakeModels.GenerateTWF();
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-
-                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
+                    var enumParser1 = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum1);
+                    SetEngineColor(engineEnum1, newModel.PredictionFromModel > 0);
+                    await Task.WhenAll(UpdatePaginatedList());
                     break;
                 case 3:
                     newModel = GenerateFakeModels.GenerateOSF();
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-
-                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
+                    var enumParser2 = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum2);
+                    SetEngineColor(engineEnum2, newModel.PredictionFromModel > 0);
+                    await Task.WhenAll(UpdatePaginatedList());
                     break;
                 case 4:
                     newModel = GenerateFakeModels.GenerateHDF();
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-
-                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
+                    var enumParse3r = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum3);
+                    SetEngineColor(engineEnum3, newModel.PredictionFromModel > 0);
+                    await Task.WhenAll(UpdatePaginatedList());
                     break;
                 case 5:
                     newModel = GenerateFakeModels.GenerateRNF();
                     await MaintenanceService.CreateMaintenanceDataAsync(newModel);
                     maintenanceModelsList.Insert(0, newModel);
-
-                    await Task.WhenAll(UpdatePaginatedList(), MakeRedGlow());
+                    var enumParse4r = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum4);
+                    SetEngineColor(engineEnum4, newModel.PredictionFromModel > 0);
+                    await Task.WhenAll(UpdatePaginatedList());
                     break;
                 default:
                     // Handle the case when 'a' is not in the range [1, 5]

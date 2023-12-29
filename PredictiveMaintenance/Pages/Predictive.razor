@@ -24,9 +24,13 @@
 
             <div class="form-group">
                 <label for="productID">Product ID:</label>
-                <InputText id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" />
+                <Select id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" @bind-Value:event="onchange">
+                    @foreach(var engine in Enum.GetValues<EngineEnums>())
+                    {
+                        <option value="@engine.ToString()">@engine</option>
+                    }
+                </Select>
             </div>
-
             <div class="form-group">
                 <label for="type">Type:</label>
                 <InputText id="type" class="form-control" @bind-Value="newMaintenanceModel.Type" />
@@ -73,15 +77,32 @@
 
     <!-- Three.js Visualization and Controls -->
     <div>
-        <div id="threejscontainer" style="width: 600px; height: 600px;"></div>
-        <div>
-            <button type="button" class="btn btn-primary" @onclick="MakeRedGlow">
-                Make Red Glow
-            </button>
-            <button type="button" class="btn btn-primary" @onclick="DisableRedGlow">
-                Disable Red Glow
-            </button>
-        </div>
+        <svg height="@svgHeight" width="@svgWidth">
+            @for (int row = 0; row < 4; row++)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    int circleNumber = row * 5 + i;
+                    if (circleNumber < 20) // As there are 20 engines
+                    {
+                        <circle cx="@(startX + (i * circleSpacingX))" cy="@(startY + (row * circleSpacingY))" r="@circleRadius" stroke="black" stroke-width="@strokeWidth" fill="@GetColor((EngineEnums)(circleNumber + 1))" />
+
+                        if (i > 0) // Draw line to previous circle in the row
+                        {
+                            <line x1="@(startX + (i * circleSpacingX) - circleSpacingX)" y1="@(startY + (row * circleSpacingY))" x2="@(startX + (i * circleSpacingX))" y2="@(startY + (row * circleSpacingY))" stroke="black" />
+                        }
+                    }
+                }
+
+                if (row > 0) // Draw line to the circle above in the previous row
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        <line x1="@(startX + (i * circleSpacingX))" y1="@(startY + (row * circleSpacingY) - circleSpacingY)" x2="@(startX + (i * circleSpacingX))" y2="@(startY + (row * circleSpacingY))" stroke="black" />
+                    }
+                }
+            }
+        </svg>
     </div>
 </div>
 
