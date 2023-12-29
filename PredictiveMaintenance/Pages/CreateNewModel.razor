@@ -27,6 +27,34 @@
             </div>
         </div>
     }
+    <div class="row">
+        @if (csvFiles != null)
+        {
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">Model List</div>
+                    <div class="card-body">
+                        @foreach (var file in csvFiles)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@file"
+                                       checked="@selectedCsvFiles[file]"
+                                       @onchange="@(e => OnModelCheckboxChanged(file, (bool)e.Value))" />
+                                <label class="form-check-label">@file</label>
+                            </div>
+                        }
+                        <button class="btn btn-primary mt-2" @onclick="PerformActionWithCsv">Set Model to Calc</button>
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success">
+                                @successMessage
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 
     @if (csvFiles != null)
     {
@@ -181,13 +209,17 @@
     {
         try
         {
-            var selectedFiles = selectedCsvFiles.Where(f => f.Value).Select(f => f.Key).ToList();
+            var selectedFiles = selectedModels.FirstOrDefault(m => m.Value).Key;
 
             if (selectedFiles.Any())
             {
                 // Implement your logic to perform action with selected CSV files
                 // Example: await SomeService.PerformActionWithCsv(selectedFiles);
-                successMessage = $"{selectedFiles.Count} files selected for the action.";
+                var succes = await PredictionService.CalculateNewModelFromCsv(selectedFiles);
+                if (succes)
+                {
+                    successMessage = $"csv '{selectedFiles}' has been successfully retrained.";
+                }
             }
             else
             {

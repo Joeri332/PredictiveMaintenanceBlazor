@@ -1,4 +1,6 @@
-﻿public static class PredictionServiceHelpers
+﻿namespace PredictiveMaintenance.Constants;
+
+public static class PredictionServiceHelpers
 {
     public const string ConnectionString = "http://localhost:5000/";
 

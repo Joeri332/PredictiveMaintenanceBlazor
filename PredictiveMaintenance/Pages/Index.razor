@@ -1,31 +1,62 @@
 ﻿@page "/"
 @inject IJSRuntime JSRuntime
-<div id="threejscontainer" style="width: 600px; height: 600px;"></div>
-<div>
-    <button type="button" class="btn btn-primary" @onclick="MakeRedGlow">
-        Make Red Glow
-    </button>
-    <button type="button" class="btn btn-primary" @onclick="DisableRedGlow">
-        DisableRedGLow
-    </button>
-</div>
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+<svg height="200" width="300">
+    @for (int row = 0; row < 2; row++)
     {
-        if (firstRender)
+        for (int i = 0; i < 5; i++)
         {
-          
-            await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.load");
+            int circleNumber = row * 5 + i;
+            <circle cx="@((i * 50) + 25)" cy="@((row * 100) + 50)" r="20" stroke="black" stroke-width="3" fill="@GetColor(circleNumber)" id="@($"circle{circleNumber}")" />
+
+            if (i > 0) // Draw line to previous circle in the row
+            {
+                <line x1="@((i * 50) - 25)" y1="@((row * 100) + 50)" x2="@((i * 50) + 25)" y2="@((row * 100) + 50)" stroke="black" />
+            }
+        }
+
+        if (row > 0) // Draw line to the circle above in the previous row
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                <line x1="@((i * 50) + 25)" y1="50" x2="@((i * 50) + 25)" y2="150" stroke="black" />
+            }
         }
     }
+</svg>
 
-    public async Task MakeRedGlow()
+<!-- UI for changing circle color -->
+<div>
+    <label for="circleNumber">Circle Number (0-9):</label>
+    <input type="number" id="circleNumber" @bind="selectedCircle" min="0" max="9" />
+
+    <label for="colorPicker">Color:</label>
+    <input type="color" id="colorPicker" @bind="selectedColor" />
+
+    <button @onclick="ApplyColorChange">Change Color</button>
+</div>
+
+@code {
+    private string[] colors = Enumerable.Repeat("blue", 10).ToArray();
+    private int selectedCircle;
+    private string selectedColor = "#0000ff"; // default color blue
+
+    private string GetColor(int circleNumber)
     {
-        await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.applyRedGlow");
+        return colors[circleNumber];
     }
 
-    public async Task DisableRedGlow()
+    private void ApplyColorChange()
     {
-        await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.disabledRedGlow");
+        ChangeCircleColor(selectedCircle, selectedColor);
+    }
+
+    public void ChangeCircleColor(int circleNumber, string color)
+    {
+        if (circleNumber >= 0 && circleNumber < colors.Length)
+        {
+            colors[circleNumber] = color;
+            StateHasChanged(); // Re-render the component with new color
+        }
     }
 }

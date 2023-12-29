@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using PredictiveMaintenance.Interfaces;
 using PredictiveMaintenance.Models;
 using System;
+using PredictiveMaintenance.Constants;
 
 namespace PredictiveMaintenance.Services
 {
@@ -57,6 +58,14 @@ namespace PredictiveMaintenance.Services
             {
                 throw new HttpRequestException($"Request failed with status code: {response.StatusCode}");
             }
+        }
+
+        public async Task<bool> CalculateNewModelFromCsv(string csvFileName)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.RetrainModel}", csvFileName);
+            response.EnsureSuccessStatusCode();
+
+            return true;
         }
 
         public async Task<bool> GetNewModelAsync()
