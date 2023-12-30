@@ -3,6 +3,9 @@ using Microsoft.JSInterop;
 using PredictiveMaintenance.Enums;
 using PredictiveMaintenance.Models;
 using PredictiveMaintenance.Services;
+using System;
+using System.Diagnostics;
+using System.Reflection.Metadata;
 
 namespace PredictiveMaintenance.Pages
 {
@@ -30,10 +33,27 @@ namespace PredictiveMaintenance.Pages
             {
                 maintenanceModelsList = await MaintenanceService.GetMaintenanceDataAsync();
                 UpdatePaginatedList();
+                GenerateRandomCsvDataToDatabase();
             }
             catch (Exception ex)
             {
                 errorMessage = "Error loading data: " + ex.Message;
+            }
+        }
+
+        private async Task DeleteRecord(int itemUdi)
+        {
+            try
+            {
+                await MaintenanceService.DeleteMaintenanceDataAsync(itemUdi);
+                maintenanceModelsList.RemoveAll(x => x.UDI == itemUdi);
+                await UpdatePaginatedList();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors, perhaps logging them and setting an error message
+                errorMessage = "Error deleting record: " + ex.Message;
             }
         }
 
@@ -57,52 +77,115 @@ namespace PredictiveMaintenance.Pages
                 errorMessage = "Invalid engine index: " + index;
             }
         }
+
+        private static Random random = new Random();
+        public static string getRandomEngineEnum()
+        {
+            Array values = Enum.GetValues(typeof(EngineEnums));
+            EngineEnums randomEngine = (EngineEnums)values.GetValue(random.Next(values.Length));
+            return randomEngine.ToString();
+        }
+
+        private List<PredictiveMaintenanceModel> records = new List<PredictiveMaintenanceModel>();
+        private int randomRecordSeconds = 5;
+        private Timer recordGenerationTimer;
+        private void OnTimerElapsed(Object stateInfo)
+        {
+            GetRandomRecord();
+            // Depending on your needs, you might want to restart or stop the timer here
+        }
+        private void GenerateRecordsOnTimer(int sec)
+        {
+            // Convert seconds to milliseconds
+            int interval = sec * 1000;
+
+            // Create a timer that waits the specified interval, then calls OnTimerElapsed
+            // AutoReset is false so that the timer runs only once
+            recordGenerationTimer = new Timer(OnTimerElapsed, null, interval, Timeout.Infinite);
+
+        }
+        private async void GetRandomRecord()
+        {
+            if (records.Count > 0)
+            {
+                Random rnd = new Random();
+                int index = rnd.Next(records.Count);
+                await HandleRecords(records[index]);
+            }
+
+        }
+
+        private void GenerateRandomCsvDataToDatabase()
+        {
+            string filePath = "Database/PredictiveMaintenance.csv";
+
+            using (var reader = new StreamReader(filePath))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+                    var record = new PredictiveMaintenanceModel
+                    {
+                        ProductID = getRandomEngineEnum(),
+                        Type = GetType(values[2]),
+                        AirTemperature = double.TryParse(values[3], out double airTemp)
+                            ? Math.Round(airTemp / 10 - 273.15, 1) : 0,
+                        ProcessTemperature = double.TryParse(values[4], out double procTemp)
+                            ? Math.Round(procTemp / 10 - 273.15, 1) : 0,
+                        RotationalSpeed = int.TryParse(values[5], out int rotSpeed) ? rotSpeed : 0,
+                        Torque = float.TryParse(values[6], out float torque) ? torque : 0,
+                        ToolWear = int.TryParse(values[7], out int toolWear) ? toolWear : 0
+                    };
+
+                    records.Add(record);
+                }
+            }
+        }
+        public string GetType(string type)
+        {
+            return type switch
+            {
+                "L" => "1",
+                "M" => "2",
+                "H" => "3",
+                _ => "0"
+            };
+        }
+
         private async Task HandleValidSubmit()
+        {
+            await HandleRecords(newMaintenanceModel);
+            StateHasChanged();
+        }
+
+        private async Task HandleRecords(PredictiveMaintenanceModel model)
         {
             try
             {
-                int prediction = await PredictionService.GetPredictionAsync(newMaintenanceModel.ToDto());
+                int prediction = await PredictionService.GetPredictionAsync(model.ToDto());
 
                 if (!ModelSelectionService.IsMultiClass)
                 {
-                    newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(prediction);
+                    model.FailuresEnums = EnumExtensions.GetEnumById(prediction);
                 }
                 else
                 {
-                    newMaintenanceModel.FailuresEnums = EnumExtensions.GetEnumById(6);
+                    model.FailuresEnums = EnumExtensions.GetEnumById(6);
                 }
 
-                newMaintenanceModel.PredictionFromModel = prediction;
-                var a = Enum.TryParse<EngineEnums>(newMaintenanceModel.ProductID, out var engineEnum);
+                model.PredictionFromModel = prediction;
+                var a = Enum.TryParse<EngineEnums>(model.ProductID, out var engineEnum);
                 SetEngineColor(engineEnum, prediction > 0);
-                await MaintenanceService.CreateMaintenanceDataAsync(newMaintenanceModel);
-                maintenanceModelsList.Insert(0, newMaintenanceModel);
+                await MaintenanceService.CreateMaintenanceDataAsync(model);
+                maintenanceModelsList.Insert(0, model);
                 newMaintenanceModel = new PredictiveMaintenanceModel();
-                UpdatePaginatedList();
+                await UpdatePaginatedList();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
                 errorMessage = "Error processing submission: " + ex.Message;
-            }
-        }
-
-        private async Task MakeRed(int prediction)
-        {
-            try
-            {
-                if (prediction > 0)
-                {
-                    await MakeRedGlow();
-                    newMaintenanceModel.PredictionFromModel = 1;
-                }
-                else
-                {
-                    await DisableRedGlow();
-                }
-            }
-            catch (Exception ex)
-            {
-                errorMessage = "Error updating UI: " + ex.Message;
             }
         }
 
@@ -115,13 +198,11 @@ namespace PredictiveMaintenance.Pages
 
             return Task.CompletedTask;
         }
-
         private void NextPage()
         {
             currentPageIndex++;
             UpdatePaginatedList();
         }
-
         private void PreviousPage()
         {
             if (currentPageIndex > 0)
@@ -145,7 +226,6 @@ namespace PredictiveMaintenance.Pages
                 errorMessage = "Error in after render processing: " + ex.Message;
             }
         }
-
         public async Task MakeRedGlow()
         {
             await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.applyRedGlow");
@@ -169,60 +249,5 @@ namespace PredictiveMaintenance.Pages
 
         private bool HasPreviousPage => currentPageIndex > 0;
         private bool HasNextPage => (currentPageIndex + 1) * PageSize < maintenanceModelsList.Count;
-
-        private async void GenerateData(int a)
-        {
-            PredictiveMaintenanceModel newModel = new PredictiveMaintenanceModel();
-            int prediction;
-            switch (a)
-            {
-                case 1:
-                    newModel = GenerateFakeModels.GeneratePWF();
-                    await MaintenanceService.CreateMaintenanceDataAsync(newModel);
-                    maintenanceModelsList.Insert(0, newModel);
-                    var enumParser = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum);
-                    SetEngineColor(engineEnum, newModel.PredictionFromModel > 0);
-                    // Run both methods concurrently
-                    await Task.WhenAll(UpdatePaginatedList());
-                    break;
-                case 2:
-                    newModel = GenerateFakeModels.GenerateTWF();
-                    await MaintenanceService.CreateMaintenanceDataAsync(newModel);
-                    maintenanceModelsList.Insert(0, newModel);
-                    var enumParser1 = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum1);
-                    SetEngineColor(engineEnum1, newModel.PredictionFromModel > 0);
-                    await Task.WhenAll(UpdatePaginatedList());
-                    break;
-                case 3:
-                    newModel = GenerateFakeModels.GenerateOSF();
-                    await MaintenanceService.CreateMaintenanceDataAsync(newModel);
-                    maintenanceModelsList.Insert(0, newModel);
-                    var enumParser2 = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum2);
-                    SetEngineColor(engineEnum2, newModel.PredictionFromModel > 0);
-                    await Task.WhenAll(UpdatePaginatedList());
-                    break;
-                case 4:
-                    newModel = GenerateFakeModels.GenerateHDF();
-                    await MaintenanceService.CreateMaintenanceDataAsync(newModel);
-                    maintenanceModelsList.Insert(0, newModel);
-                    var enumParse3r = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum3);
-                    SetEngineColor(engineEnum3, newModel.PredictionFromModel > 0);
-                    await Task.WhenAll(UpdatePaginatedList());
-                    break;
-                case 5:
-                    newModel = GenerateFakeModels.GenerateRNF();
-                    await MaintenanceService.CreateMaintenanceDataAsync(newModel);
-                    maintenanceModelsList.Insert(0, newModel);
-                    var enumParse4r = Enum.TryParse<EngineEnums>(newModel.ProductID, out var engineEnum4);
-                    SetEngineColor(engineEnum4, newModel.PredictionFromModel > 0);
-                    await Task.WhenAll(UpdatePaginatedList());
-                    break;
-                default:
-                    // Handle the case when 'a' is not in the range [1, 5]
-                    break;
-            }
-
-
-        }
     }
 }

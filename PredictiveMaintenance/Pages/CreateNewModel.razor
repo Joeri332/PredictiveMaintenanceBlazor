@@ -27,26 +27,40 @@
             </div>
         </div>
     }
-
-    @if (csvFiles != null)
-    {
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">CSV Files</div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        @foreach (var file in csvFiles)
-                        {
-                            <li class="list-group-item">
-                                <input type="checkbox" checked="@selectedCsvFiles[file]" @onchange="@(e => OnCsvCheckboxChanged(file, (bool)e.Value))" /> @file
-                            </li>
-                        }
-                    </ul>
-                    <button class="btn btn-primary mt-2" @onclick="PerformActionWithCsv">Calculate new model</button>
-                </div>
+</div>
+<div class="row">
+<!-- CSV Files Section -->
+@if (csvFiles != null)
+{
+    <div class="col-md-6"> <!-- Adjusted to take half the width of the row -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">CSV Files</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    @foreach (var file in csvFiles)
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" checked="@selectedCsvFiles[file]" @onchange="@(e => OnCsvCheckboxChanged(file, (bool)e.Value))" /> @file
+                        </li>
+                    }
+                </ul>
+                <button class="btn btn-primary mt-2" @onclick="PerformActionWithCsv">Calculate new model</button>
             </div>
         </div>
-    }
+    </div>
+}
+
+<!-- Select Date Range for CSV Section -->
+<div class="col-md-6"> <!-- Adjusted to take the remaining half width of the row -->
+    <div class="card">
+        <div class="card-header bg-warning text-dark">Select Date Range for CSV</div>
+        <div class="card-body">
+            <input type="date" @bind="startDate" />
+            <input type="date" @bind="endDate" />
+            <button class="btn btn-primary mt-2" @onclick="CreateNewCsvFile">Create new csv file</button>
+        </div>
+    </div>
+</div>
 </div>
 
 <div class="row">
@@ -86,6 +100,8 @@
     private Dictionary<string, bool> selectedCsvFiles = new Dictionary<string, bool>();
     private string successMessage;
     private string errorMessage;
+    private DateTime startDate = DateTime.Now.AddDays(-30); 
+    private DateTime endDate = DateTime.Now; 
 
     protected async override Task OnInitializedAsync()
     {
@@ -252,4 +268,26 @@
             errorMessage = "Error changing checkbox: " + ex.Message;
         }
     }
+
+    private async void CreateNewCsvFile()
+    {
+        try
+        {
+            var success = await PredictionService.CreateNewCsvFile(startDate, endDate);
+            if (success)
+            {
+                await ListCsvFiles();
+                successMessage = "CSV file created successfully.";
+            }
+            else
+            {
+                errorMessage = "Failed to create CSV file.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error creating CSV file: " + ex.Message;
+        }
+    }
 }
+

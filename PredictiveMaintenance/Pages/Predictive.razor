@@ -67,12 +67,15 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
-            <button class="btn btn-secondary" @onclick="() => GenerateData(1)">PWF</button>
-            <button class="btn btn-secondary" @onclick="() => GenerateData(2)">TWF</button>
-            <button class="btn btn-secondary" @onclick="() => GenerateData(3)">OSF</button>
-            <button class="btn btn-secondary" @onclick="() => GenerateData(4)">HDF</button>
-            <button class="btn btn-secondary" @onclick="() => GenerateData(5)">RNF</button>
+      
         </EditForm>
+        <div class="form-group">
+            <label for="randomRecordSeconds">Seconds:</label>
+            <input type="number" id="randomRecordSeconds" class="form-control" value="@randomRecordSeconds" />
+        </div>
+        <button class="btn btn-secondary" @onclick="() => GenerateRecordsOnTimer(randomRecordSeconds)">Get Random Record</button>
+
+
     </div>
 
     <!-- Three.js Visualization and Controls -->
@@ -126,21 +129,25 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in paginatedMaintenanceModelsList)
-            {
-                <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
-                    <td>@item.UDI</td>
-                    <td>@item.ProductID</td>
-                    <td>@item.Type</td>
-                    <td>@item.AirTemperature</td>
-                    <td>@item.ProcessTemperature</td>
-                    <td>@item.RotationalSpeed</td>
-                    <td>@item.Torque</td>
-                    <td>@item.ToolWear</td>
-                    <td>@item.PredictionFromModel</td>
-                    <td>@item.FailuresEnums.GetDescription()</td>
-                </tr>
-            }
+        @foreach (var item in paginatedMaintenanceModelsList)
+        {
+            <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
+                <td>@item.UDI</td>
+                <td>@item.ProductID</td>
+                <td>@item.Type</td>
+                <td>@item.AirTemperature</td>
+                <td>@item.ProcessTemperature</td>
+                <td>@item.RotationalSpeed</td>
+                <td>@item.Torque</td>
+                <td>@item.ToolWear</td>
+                <td>@item.PredictionFromModel</td>
+                <td>@item.FailuresEnums.GetDescription()</td>
+                <!-- Add a new column for delete button -->
+                <td>
+                    <button class="btn btn-danger" @onclick="() => DeleteRecord(item.UDI)">Delete</button>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
 

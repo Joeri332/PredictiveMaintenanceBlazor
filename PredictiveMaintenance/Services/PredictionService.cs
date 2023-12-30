@@ -74,6 +74,23 @@ namespace PredictiveMaintenance.Services
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<bool> CreateNewCsvFile(DateTime from, DateTime toTime)
+        {
+            // Format dates as strings in "YYYY-MM-DD" format
+            string formattedStartDate = from.ToString("yyyy-MM-dd");
+            string formattedEndDate = toTime.ToString("yyyy-MM-dd");
+
+            // Construct the query string with formatted dates
+            string url = $"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.ExportCsv}?startDate={formattedStartDate}&endDate={formattedEndDate}";
+
+            // Make a GET request to the specified URL
+            var response = await _httpClient.GetAsync(url);
+
+            // Check if the response indicates success
+            return response.IsSuccessStatusCode;
+        }
+
+
         public async Task<bool> SetModelToCalc(string ModelName)
         {
             var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.SetModel}", ModelName);
