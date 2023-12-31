@@ -2,6 +2,7 @@
 @using PredictiveMaintenance.Interfaces
 @using PredictiveMaintenance.Models
 @using PredictiveMaintenance.Services
+@using System.Text.Json
 @inject IJSRuntime JSRuntime
 @inject IPredictionService PredictionService
 @inject ModelSelectionService ModelSelectionService
@@ -49,7 +50,29 @@
         </div>
     </div>
 }
-
+    @if (predictionResult != null)
+    {
+        <div class="card">
+            <div class="card-header bg-success text-white">Prediction Result</div>
+            <div class="card-body">
+                <h5>Status: @predictionResult.Status</h5>
+                <p>ROC AUC Score: @predictionResult.RocAucScore</p>
+                <h5>Classification Report</h5>
+                <p>Accuracy: @predictionResult.ClassificationReport.Accuracy</p>
+                <!-- Detailed Metrics for each classification -->
+                @DisplayMetrics("Class 0", predictionResult.ClassificationReport.Zero)
+                @DisplayMetrics("Class 1", predictionResult.ClassificationReport.One)
+                @DisplayMetrics("Class 2", predictionResult.ClassificationReport.Two)
+                @DisplayMetrics("Class 3", predictionResult.ClassificationReport.Three)
+                @DisplayMetrics("Class 4", predictionResult.ClassificationReport.Four)
+                <!-- Averages -->
+                <h5>Macro Average</h5>
+                @DisplayMetrics("Macro Avg", predictionResult.ClassificationReport.MacroAvg)
+                <h5>Weighted Average</h5>
+                @DisplayMetrics("Weighted Avg", predictionResult.ClassificationReport.WeightedAvg)
+            </div>
+        </div>
+    }
 <!-- Select Date Range for CSV Section -->
 <div class="col-md-6"> <!-- Adjusted to take the remaining half width of the row -->
     <div class="card">
@@ -93,7 +116,7 @@
 </div>
 
 @code {
-    private int? predictionResult;
+        private PredictionResult predictionResult;
     private List<string> csvFiles;
     private List<string> modelList;
     private Dictionary<string, bool> selectedModels = new Dictionary<string, bool>();
@@ -145,7 +168,16 @@
             errorMessage = "Error listing CSV files: " + ex.Message;
         }
     }
-
+    private RenderFragment DisplayMetrics(string title, MetricDetails metrics) => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddMarkupContent(1, $"<h6>{title}</h6>");
+        builder.AddMarkupContent(2, $"<p>F1-Score: {metrics.F1Score}</p>");
+        builder.AddMarkupContent(3, $"<p>Precision: {metrics.Precision}</p>");
+        builder.AddMarkupContent(4, $"<p>Recall: {metrics.Recall}</p>");
+        builder.AddMarkupContent(5, $"<p>Support: {metrics.Support}</p>");
+        builder.CloseElement();
+    };
     private async Task ListModels()
     {
         try
@@ -202,12 +234,17 @@
 
             if (!string.IsNullOrEmpty(selectedFile)) // Ensures there is a selected file
             {
-                
-                var success = await PredictionService.CalculateNewModelFromCsv(selectedFile);
-                if (success)
+                var jsonResult = await PredictionService.CalculateNewModelFromCsv(selectedFile);
+                if (!string.IsNullOrEmpty(jsonResult))
                 {
-                    successMessage = $"CSV '{selectedFile}' has been successfully retrained.";
-                    await ListModels();
+    // Assuming jsonResult is a JSON string representation of PredictionResult
+                    predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult);
+                    successMessage = $"CSV '{selectedFile}' has been successfully retrained with new model.";
+                    await ListModels(); // Refresh the list of models if necessary
+                }
+                else
+                {
+                    errorMessage = "Failed to retrieve result from the service.";
                 }
             }
             else
