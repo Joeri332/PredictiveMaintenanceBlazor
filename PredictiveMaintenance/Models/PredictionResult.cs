@@ -56,6 +56,7 @@ namespace PredictiveMaintenance.Models
         public double Support { get; set; }
     }
 
+
     public class AverageDetails
     {
         [JsonPropertyName("f1-score")]
