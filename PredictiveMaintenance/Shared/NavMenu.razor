@@ -1,24 +1,30 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">PredictiveMaintenance</a>
+    <div class="container-fluid">       
+        @* <a class="navbar-brand" href="">PredictiveMaintenance</a> *@
+        <img src="FORTNA-logo-white.svg" href="" />
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
 
+
 <div class="nav flex-column">
-    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+    <div class="d-flex justify-content-center">
+        <a class="navbar-brand" href=""><b>PredictiveMaintenance</b></a>
+    </div>
+    <br>
+    <NavLink class="nav-link custom" href="" Match="NavLinkMatch.All">
         <span class="oi oi-home" aria-hidden="true"></span> Home
     </NavLink>
-    <NavLink class="nav-link" href="predictive-maintenance-entry">
-        <span class="oi oi-plus" aria-hidden="true"></span> Enter data for model
+    <NavLink class="nav-link custom" href="predictive-maintenance-entry">
+        <span class="oi oi-bar-chart" aria-hidden="true"></span> Data
     </NavLink>
-    <NavLink class="nav-link" href="add-feedback">
-        <span class="oi oi-plus" aria-hidden="true"></span> add-feedback
+    <NavLink class="nav-link custom" href="add-feedback">
+        <span class="oi oi-wrench" aria-hidden="true"></span> Feedback
     </NavLink>
-    <NavLink class="nav-link" href="create-model">
-        <span class="oi oi-plus" aria-hidden="true"></span> Create model
+    <NavLink class="nav-link custom" href="create-model">
+        <span class="oi oi-transfer" aria-hidden="true"></span> Retrain
     </NavLink>
 </div>
 

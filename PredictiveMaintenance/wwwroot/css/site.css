@@ -9,8 +9,13 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: #d7d7d7;
 }
+
+.nav-link.custom {
+    color: white;
+}
+
 
 .btn-primary {
     color: #fff;
