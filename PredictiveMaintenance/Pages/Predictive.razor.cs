@@ -129,6 +129,8 @@ namespace PredictiveMaintenance.Pages
             {
                 Random rnd = new Random();
                 int index = rnd.Next(records.Count);
+                var a = records[index];
+                a.Torque = a.Torque / 10;
                 await HandleRecords(records[index]);
             }
         }
