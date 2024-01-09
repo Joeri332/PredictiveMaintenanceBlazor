@@ -89,10 +89,39 @@ namespace PredictiveMaintenance.Pages
         private List<PredictiveMaintenanceModel> records = new List<PredictiveMaintenanceModel>();
         private int randomRecordSeconds = 5;
         private Timer recordGenerationTimer;
-        private void OnTimerElapsed(Object stateInfo)
+        private bool isTimerRunning = false;
+        private int progressPercentage = 0;
+        private void OnTimerElapsed(object state)
         {
             GetRandomRecord();
-            // Depending on your needs, you might want to restart or stop the timer here
+            progressPercentage += 20; // Increment by 20% for each tick, adjust as needed
+
+            if (progressPercentage >= 100)
+            {
+                progressPercentage = 0; // Reset progress after reaching 100%
+            }
+
+            InvokeAsync(StateHasChanged); // Update UI
+        }
+
+        private void StartTimer(int intervalSeconds)
+        {
+            if (!isTimerRunning)
+            {
+                int interval = intervalSeconds * 1000; // Convert seconds to milliseconds
+                recordGenerationTimer = new Timer(OnTimerElapsed, null, interval, interval);
+                isTimerRunning = true;
+            }
+        }
+
+        private void StopTimer()
+        {
+            if (isTimerRunning)
+            {
+                recordGenerationTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                recordGenerationTimer?.Dispose();
+                isTimerRunning = false;
+            }
         }
         private void GenerateRecordsOnTimer(int sec)
         {
@@ -112,8 +141,8 @@ namespace PredictiveMaintenance.Pages
                 int index = rnd.Next(records.Count);
                 await HandleRecords(records[index]);
             }
-
         }
+
 
         private void GenerateRandomCsvDataToDatabase()
         {
@@ -176,7 +205,10 @@ namespace PredictiveMaintenance.Pages
 
                 model.PredictionFromModel = prediction;
                 var a = Enum.TryParse<EngineEnums>(model.ProductID, out var engineEnum);
-                SetEngineColor(engineEnum, prediction > 0);
+                await InvokeAsync(() =>
+                {
+                    SetEngineColor(engineEnum, prediction > 0);
+                });
                 await MaintenanceService.CreateMaintenanceDataAsync(model);
                 maintenanceModelsList.Insert(0, model);
                 newMaintenanceModel = new PredictiveMaintenanceModel();
@@ -226,16 +258,6 @@ namespace PredictiveMaintenance.Pages
                 errorMessage = "Error in after render processing: " + ex.Message;
             }
         }
-        public async Task MakeRedGlow()
-        {
-            await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.applyRedGlow");
-        }
-
-        public async Task DisableRedGlow()
-        {
-            await JSRuntime.InvokeVoidAsync("ThreeJSFunctions.disabledRedGlow");
-        }
-
         private RenderFragment DisplayErrorMessage() => builder =>
         {
             if (!string.IsNullOrEmpty(errorMessage))
