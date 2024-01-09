@@ -123,16 +123,6 @@ namespace PredictiveMaintenance.Pages
                 isTimerRunning = false;
             }
         }
-        private void GenerateRecordsOnTimer(int sec)
-        {
-            // Convert seconds to milliseconds
-            int interval = sec * 1000;
-
-            // Create a timer that waits the specified interval, then calls OnTimerElapsed
-            // AutoReset is false so that the timer runs only once
-            recordGenerationTimer = new Timer(OnTimerElapsed, null, interval, Timeout.Infinite);
-
-        }
         private async void GetRandomRecord()
         {
             if (records.Count > 0)
