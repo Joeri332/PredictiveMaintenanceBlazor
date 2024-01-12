@@ -67,3 +67,16 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+<style >
+#maintenanceRecord {
+    width: 100%; /* Adjust as necessary */
+    padding: 5px;
+    font-family: 'Courier New', monospace; /* This is a common monospaced font */
+}
+
+#maintenanceRecord option {
+    padding: 3px;
+    margin: 2px;
+}
+
+</style >

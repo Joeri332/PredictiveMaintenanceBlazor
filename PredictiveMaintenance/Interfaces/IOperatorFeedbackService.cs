@@ -11,7 +11,6 @@ namespace PredictiveMaintenance.Interfaces
         Task<bool> CreateFeedbackAsync(OperatorFeedback newFeedback);
         Task<bool> UpdateFeedbackAsync(OperatorFeedback updatedFeedback);
         Task<bool> DeleteFeedbackAsync(int id);
-
         Task<List<OperatorFeedback>> GetFeedbacksWithProductIdAsync();
     }
 }

@@ -4,7 +4,6 @@
 @using PredictiveMaintenance.Models
 @inject IOperatorFeedbackService OperatorFeedbackService
 @inject IMaintenanceService MaintenanceDataService 
-
 <h3>Add Operator Feedback</h3>
 
 @if (feedbackGiven == null || maintenanceRecords == null)
@@ -63,7 +62,7 @@ else
                     <option value="">-- Select a Record --</option>
                     @foreach (var record in maintenanceRecords)
                     {
-                        <option value="@record.UDI">@record.ProductID</option>
+                        <option value="@record.UDI">UDI: @record.UDI - Product ID: @record.ProductID - Date: @record.CreatedAt</option>
                     }
                 </select>
             </div>
