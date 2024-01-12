@@ -60,12 +60,15 @@ namespace PredictiveMaintenance.Services
             }
         }
 
-        public async Task<bool> CalculateNewModelFromCsv(string csvFileName)
+        public async Task<string> CalculateNewModelFromCsv(string csvFileName)
         {
             var response = await _httpClient.PostAsJsonAsync($"{PredictionServiceHelpers.ConnectionString}{PredictionServiceHelpers.RetrainModel}", csvFileName);
             response.EnsureSuccessStatusCode();
 
-            return true;
+            // Read the response content as a string.
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return responseContent; // return the response content
         }
 
         public async Task<bool> GetNewModelAsync()
