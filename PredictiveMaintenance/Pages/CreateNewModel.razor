@@ -21,6 +21,32 @@
         padding: 20px;
     }
 
+    .btn-color {
+        background-color: #76C893;
+        border-color: #99D98C;
+    }
+
+        .btn-color:hover {
+            background-color: #68a77d; /* Darker green */
+            border-color: #89b47d; /* Slightly darker green */
+        }
+
+    .custom-header-color-datasets {
+        background-color: #168AAD;
+    }
+
+    .custom-header-color-range {
+        background-color: #34A0A4;
+    }
+
+    .custom-header-color-models {
+        background-color: #52B69A;
+    }
+
+    .custom-header-color-result {
+        background-color: #184E77;
+    }
+
     .metric-container {
         margin-bottom: 15px;
         padding: 10px;
@@ -52,7 +78,7 @@
     }
 </style>
 
-<h3>Create Model</h3>
+<h3><b>Create Model</b></h3>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -61,45 +87,68 @@
     </div>
 }
 <div class="row">
-@if (csvFiles != null)
-{
-    <div class="col-md-6"> 
+    @if (csvFiles != null)
+    {
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header custom-header-color-datasets text-white"><b>Data Sets</b></div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var file in csvFiles)
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox" checked="@selectedCsvFiles[file]" @onchange="@(e => OnCsvCheckboxChanged(file, (bool)e.Value))" /> @file
+                            </li>
+                        }
+                    </ul>
+                    <button class="btn btn-color text-white mt-2" @onclick="CalculateNewModelFromCsv">Create new model</button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        if (IsLoading)
+        {
+            //loading gif
+            <div class="col-md-6">
+                <div class="p-4">
+                    <div class="text-center">
+                        <img src="/images/loading.gif">
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            //no records
+            <p>No recrods found.</p>
+        }
+    }
+    <div class="col-md-1"></div>
+    <div class="col-md-3">
         <div class="card">
-            <div class="card-header bg-warning text-dark">CSV Files</div>
+            <div class="card-header custom-header-color-range text-white"><b>Select Date Range</b></div>
             <div class="card-body">
-                <ul class="list-group">
-                    @foreach (var file in csvFiles)
-                    {
-                        <li class="list-group-item">
-                            <input type="checkbox" checked="@selectedCsvFiles[file]" @onchange="@(e => OnCsvCheckboxChanged(file, (bool)e.Value))" /> @file
-                        </li>
-                    }
-                </ul>
-                <button class="btn btn-primary mt-2" @onclick="CalculateNewModelFromCsv">Calculate new model</button>
+                <input type="date" @bind="startDate" />
+                <input type="date" @bind="endDate" />
+                <div>
+                    <button class="btn btn-color text-white mt-2" @onclick="CreateNewCsvFile">Create new dataset</button>
+                </div>
             </div>
         </div>
     </div>
-}
-<div class="col-md-6"> 
-    <div class="card">
-        <div class="card-header bg-warning text-dark">Select Date Range for CSV</div>
-        <div class="card-body">
-            <input type="date" @bind="startDate" />
-            <input type="date" @bind="endDate" />
-            <button class="btn btn-primary mt-2" @onclick="CreateNewCsvFile">Create new csv file</button>
-        </div>
-    </div>
-</div>
+
 </div>
 
 <div class="row">
     @if (modelList != null)
     {
-        <div class="col-md-5">
+        <div class="col-md-6 pt-3">
             <div class="card">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <span>Model List</span>
-                    <span>Compare</span>
+                <div class="card-header custom-header-color-models text-white d-flex justify-content-between align-items-center">
+                    <span><b>Machine Learning Models</b></span>
+                    <span><b>Compare</b></span>
                 </div>
                 <div class="card-body">
                     @foreach (var model in modelList)
@@ -124,28 +173,49 @@
                             </div>
                         </div>
                     }
-                    <button class="btn btn-primary mt-2" @onclick="SetModelToCalcWith">Set Model to Calc</button>
+                    <button class="btn btn-color text-white mt-2 p" @onclick="SetModelToCalcWith">Load model</button>
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
-                        <div class="alert alert-success">
-                            @successMessage
+                        <div class="pt-3">
+                            <div class="alert alert-success">
+                                @successMessage
+                            </div>
                         </div>
                     }
                 </div>
             </div>
         </div>
     }
-    
-  @*<RadzenChart>
+    else
+    {
+        if (IsLoading)
+        {
+            //loading gif
+            <div class="col-md-6">
+                <div class="p-4">
+                    <div class="text-center">
+                        <img src="/images/loading.gif">
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            //no records
+            <p>No recrods found.</p>
+        }
+    }
+
+    @*<RadzenChart>
     <RadzenChartValueAxis>
-        <RadzenChartAxis Min="0" Max="100" Step="0.1" />
+    <RadzenChartAxis Min="0" Max="100" Step="0.1" />
     </RadzenChartValueAxis>
     <RadzenColumnSeries Data="@GraphModelCreationSCores" Title="Number" CategoryProperty="Name" ValueProperty="Number" />
     </RadzenChart>*@
 </div>
 @if (predictionResults != null)
 {
-    <div class="prediction-results-container">
+    <div class="prediction-results-container pt-3">
         @foreach (var result in predictionResults)
         {
             @RenderFragments.CreatePredictionCard(result)
@@ -163,9 +233,10 @@
     List<PredictionResult> predictionResults = new();
     private string successMessage;
     private string errorMessage;
-    private DateTime startDate = DateTime.Now.AddDays(-30); 
-    private DateTime endDate = DateTime.Now; 
+    private DateTime startDate = DateTime.Now.AddDays(-30);
+    private DateTime endDate = DateTime.Now;
     private List<GraphScores> GraphModelCreationSCores = new();
+    public bool IsLoading { get; set; } = true;
 
     private void AddModel(string name, double number)
     {
@@ -186,6 +257,7 @@
                 }
             }
 
+            IsLoading = false;
             await ListCsvFiles();
         }
         catch (Exception ex)
@@ -221,8 +293,8 @@
         var predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult.JSonData);
         if (checkbox)
         {
-      
-            predictionResults.Add(predictionResult); 
+
+            predictionResults.Add(predictionResult);
             AddModel(predictionResult.Status, predictionResult.RocAucScore);
         }
         else
@@ -234,7 +306,7 @@
             }
         }
         InvokeAsync(StateHasChanged);
-   
+
     }
 
 
@@ -291,7 +363,7 @@
         {
             var selectedFile = selectedCsvFiles.FirstOrDefault(f => f.Value).Key;
 
-            if (!string.IsNullOrEmpty(selectedFile)) 
+            if (!string.IsNullOrEmpty(selectedFile))
             {
                 var jsonResult = await PredictionService.CalculateNewModelFromCsv(selectedFile);
                 if (!string.IsNullOrEmpty(jsonResult))
@@ -301,7 +373,8 @@
                     scoreService.CreateScoreForModel(new ModelCreationScores { FileName = statusObjectNeedsToBeChanged, JSonData = jsonResult });
                     predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult);
                     successMessage = $"CSV '{selectedFile}' has been successfully retrained with new model.";
-                    await ListModels(); 
+                    await ListModels();
+                    errorMessage = "";
                 }
                 else
                 {
