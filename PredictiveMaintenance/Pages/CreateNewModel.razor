@@ -136,12 +136,12 @@
         </div>
     }
     
-  @*<RadzenChart>
+  <RadzenChart>
     <RadzenChartValueAxis>
         <RadzenChartAxis Min="0" Max="100" Step="0.1" />
     </RadzenChartValueAxis>
     <RadzenColumnSeries Data="@GraphModelCreationSCores" Title="Number" CategoryProperty="Name" ValueProperty="Number" />
-    </RadzenChart>*@
+    </RadzenChart>
 </div>
 @if (predictionResults != null)
 {
@@ -217,7 +217,7 @@
 
     public async void OnSecondCheckboxChanged(string model, bool checkbox)
     {
-        var jsonResult = await scoreService.GetScoreForModel("Model retrained successfully on maintenance_data_2023_12_16_14_18_05.csv");
+        var jsonResult = await scoreService.GetScoreForModel(model);
         var predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult.JSonData);
         if (checkbox)
         {
@@ -297,7 +297,7 @@
                 if (!string.IsNullOrEmpty(jsonResult))
                 {
                     JObject jsonObject = JObject.Parse(jsonResult);
-                    var statusObjectNeedsToBeChanged = jsonObject["status"].ToString();
+                    var statusObjectNeedsToBeChanged = jsonObject["model_name"].ToString();
                     scoreService.CreateScoreForModel(new ModelCreationScores { FileName = statusObjectNeedsToBeChanged, JSonData = jsonResult });
                     predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult);
                     successMessage = $"CSV '{selectedFile}' has been successfully retrained with new model.";
