@@ -8,10 +8,11 @@
 @inject IJSRuntime JSRuntime
 @inject ModelSelectionService ModelSelectionService
 
+
 <div class="d-flex justify-content-between">
     <!-- Maintenance Record Form -->
     <div>
-        <h3>Add New Maintenance Record</h3>
+        <h3><b>Add New Maintenance Record</b></h3>
         <EditForm Model="@newMaintenanceModel" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
@@ -25,7 +26,7 @@
             <div class="form-group">
                 <label for="productID">Product ID:</label>
                 <Select id="productID" class="form-control" @bind-Value="newMaintenanceModel.ProductID" @bind-Value:event="onchange">
-                    @foreach(var engine in Enum.GetValues<EngineEnums>())
+                    @foreach (var engine in Enum.GetValues<EngineEnums>())
                     {
                         <option value="@engine.ToString()">@engine</option>
                     }
@@ -65,16 +66,19 @@
                 <label for="predictionFromModel">Prediction From Model:</label>
                 <InputNumber id="predictionFromModel" class="form-control" @bind-Value="newMaintenanceModel.PredictionFromModel" />
             </div>
+            <div class="pt-2 pb-3">
+                <button type="submit" class="btn btn-color text-white">Submit</button>
+            </div>
 
-            <button type="submit" class="btn btn-primary">Submit</button>
-      
         </EditForm>
         <div class="form-group">
             <label for="randomRecordSeconds">Seconds:</label>
             <input type="number" id="randomRecordSeconds" class="form-control" @bind="randomRecordSeconds" min="1" />
         </div>
-        <button class="btn btn-primary" @onclick="() => StartTimer(randomRecordSeconds)">Start generating data</button>
-        <button class="btn btn-danger" @onclick="StopTimer">Stop generating data</button>
+        <div class="pt-3 pb-4">
+            <button class="btn btn-color text-white" @onclick="() => StartTimer(randomRecordSeconds)">Start Monitoring</button>
+            <button class="btn btn-danger" @onclick="StopTimer">Stop Monitoring</button>
+        </div>
         <div class="progress-bar">
             <div class="progress-bar-fill" style="width: @progressPercentage%;"></div>
         </div>
@@ -132,29 +136,30 @@
             </tr>
         </thead>
         <tbody>
-        @foreach (var item in paginatedMaintenanceModelsList)
-        {
-            <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
-                <td>@item.UDI</td>
-                <td>@item.ProductID</td>
-                <td>@item.Type</td>
-                <td>@item.AirTemperature</td>
-                <td>@item.ProcessTemperature</td>
-                <td>@item.RotationalSpeed</td>
-                <td>@item.Torque</td>
-                <td>@item.ToolWear</td>
-                <td>@item.PredictionFromModel</td>
-                <td>@item.FailuresEnums.GetDescription()</td>
-                <!-- Add a new column for delete button -->
-                <td>
-                    <button class="btn btn-danger" @onclick="() => DeleteRecord(item.UDI)">Delete</button>
-                </td>
-            </tr>
-        }
+            @foreach (var item in paginatedMaintenanceModelsList)
+            {
+                <tr style="background-color: @(item.PredictionFromModel >= 1 ? "#ffcccc" : "transparent")">
+                    <td>@item.UDI</td>
+                    <td>@item.ProductID</td>
+                    <td>@item.Type</td>
+                    <td>@item.AirTemperature</td>
+                    <td>@item.ProcessTemperature</td>
+                    <td>@item.RotationalSpeed</td>
+                    <td>@item.Torque</td>
+                    <td>@item.ToolWear</td>
+                    <td>@item.PredictionFromModel</td>
+                    <td>@item.FailuresEnums.GetDescription()</td>
+                    <!-- Add a new column for delete button -->
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => DeleteRecord(item.UDI)"><span class="oi oi-trash" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
-
-    <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
-    <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
+    <div class="pb-5">
+        <button class="btn btn-secondary" @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
+        <button class="btn btn-secondary" @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
+    </div>
 }
 

@@ -4,7 +4,7 @@
 @using PredictiveMaintenance.Models
 @inject IOperatorFeedbackService OperatorFeedbackService
 @inject IMaintenanceService MaintenanceDataService 
-<h3>Add Operator Feedback</h3>
+<h3><b>Add Operator Feedback</b></h3>
 
 @if (feedbackGiven == null || maintenanceRecords == null)
 {
@@ -13,7 +13,7 @@
 else
 {
 
-    <h3>Maintenance Records</h3>
+    <h3><b>Maintenance Records</b></h3>
 
     @if (feedbackGiven.Count > 0)
 {
@@ -83,12 +83,12 @@ else
                 <InputCheckbox id="isPredictionCorrect" @bind-Value="feedback.IsPredictionCorrect" class="form-check-input" />
             </div>
 
-            <div class="form-group">
+            <div class="form-group pb-3">
                 <label for="solutionUsed">Solution Used:</label>
                 <InputTextArea id="solutionUsed" @bind-Value="feedback.SolutionUsed" class="form-control" />
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <button type="submit" class="btn btn-color text-white">Submit Feedback</button>
         </EditForm>
     }
 }

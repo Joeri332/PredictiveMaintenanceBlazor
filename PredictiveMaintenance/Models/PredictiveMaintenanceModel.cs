@@ -9,14 +9,14 @@ namespace PredictiveMaintenance.Models
     public class PredictiveMaintenanceModel
     {
         [Key] 
-        public int UDI { get; set; }      
-        public string? ProductID { get; set; }    
-        public string? Type { get; set; }
-        public double AirTemperature { get; set; }
-        public double ProcessTemperature { get; set; }
-        public double RotationalSpeed { get; set; }
-        public double Torque { get; set; }
-        public int ToolWear { get; set; }
+        public int UDI { get; set; }
+        public string? ProductID { get; set; } = "Engine1";
+        public string? Type { get; set; } = "1.0";
+        public double AirTemperature { get; set; } = 31.650;
+        public double ProcessTemperature { get; set; } = 40.950;
+        public double RotationalSpeed { get; set; } = 1256;
+        public double Torque { get; set; } = 58.700;
+        public int ToolWear { get; set; } = 213;
         public int PredictionFromModel { get; set; }
         public FailuresEnums FailuresEnums { get; set; }
 

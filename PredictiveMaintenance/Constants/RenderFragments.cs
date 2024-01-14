@@ -11,6 +11,8 @@ namespace PredictiveMaintenance.Constants
             builder.OpenElement(0, "div");
             builder.AddAttribute(1, "class", "card prediction-card");
             builder.OpenElement(2, "div");
+            builder.AddAttribute(3, "class", "card-header " + "custom-header-color-result");
+            builder.AddContent(4, "Prediction Result");
             builder.AddAttribute(3, "class", "card-header");
             builder.AddContent(4, predictionResult.ModelName);
             builder.CloseElement();
