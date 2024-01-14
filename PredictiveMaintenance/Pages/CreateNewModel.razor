@@ -206,14 +206,7 @@
             <p>No recrods found.</p>
         }
     }
-  
-  @*<RadzenChart>
 
-    <RadzenChartValueAxis>
-    <RadzenChartAxis Min="0" Max="100" Step="0.1" />
-    </RadzenChartValueAxis>
-    <RadzenColumnSeries Data="@GraphModelCreationSCores" Title="Number" CategoryProperty="Name" ValueProperty="Number" />
-    </RadzenChart>*@
 </div>
 @if (predictionResults != null)
 {
@@ -226,6 +219,7 @@
 }
 
 @code {
+    public bool IsLoading { get; set; } = true;
     private PredictionResult predictionResult;
     private List<string> csvFiles;
     private List<string> modelList;
