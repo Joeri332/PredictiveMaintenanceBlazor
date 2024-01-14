@@ -1,5 +1,15 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.btn-color {
+    background-color: #1A759F;
+    border-color: #99D98C;
+}
+
+    .btn-color:hover {
+        background-color: #68a77d; /* Darker green */
+        border-color: #89b47d; /* Slightly darker green */
+    }
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

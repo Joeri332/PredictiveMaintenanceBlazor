@@ -7,17 +7,7 @@
 @inject IPredictionService PredictionService
 @inject IJSRuntime JSRuntime
 @inject ModelSelectionService ModelSelectionService
-<style>
-    .btn-color {
-        background-color: #1A759F;
-        border-color: #168AAD;
-    }
 
-        .btn-color:hover {
-            background-color: #184E77; /* Darker green */
-            border-color: #1E6091; /* Slightly darker green */
-        }
-</style>
 
 <div class="d-flex justify-content-between">
     <!-- Maintenance Record Form -->
@@ -161,7 +151,7 @@
                     <td>@item.FailuresEnums.GetDescription()</td>
                     <!-- Add a new column for delete button -->
                     <td>
-                        <button class="btn btn-danger" @onclick="() => DeleteRecord(item.UDI)">Delete</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteRecord(item.UDI)"><span class="oi oi-trash" aria-hidden="true"></span></button>
                     </td>
                 </tr>
             }
