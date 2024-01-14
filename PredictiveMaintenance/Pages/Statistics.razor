@@ -1,0 +1,265 @@
+﻿@page "/stats"
+@using PredictiveMaintenance.Interfaces
+@using PredictiveMaintenance.Models
+@using System.Text.Json
+@using Microsoft.AspNetCore.Mvc
+@using System.Security.AccessControl
+@inject IJSRuntime JSRuntime
+@inject IScoreService scoreService
+
+<style>
+    .chart-container {
+        /*position: relative;*/
+        width: 100%;
+        max-width: 800px; /* Adjust as per your design */
+        margin: 20px 0; /* Centers the chart and adds spacing around */
+        padding: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Adds a subtle shadow for depth */
+        background-color: #fff; /* Background color for the chart container */
+        border-radius: 8px; /* Optional: Rounds the corners of the container */
+        width: 45%; /* Adjust width to control the size of each chart */
+    }
+
+    .chart-title {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        color: #333; /* Adjust the color as needed */
+    }
+
+    canvas {
+        display: block;
+        width: 100%; /* Full width of the container */
+        height: 400px; /* Specific fixed height */
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: space-around; /* Distributes space evenly between the charts */
+        align-items: flex-start; /* Aligns charts to the top */
+        flex-wrap: wrap; /* Allows charts to wrap onto the next line on smaller screens */
+        margin: 20px 0; /* Adds vertical spacing around the flex container */
+    }
+
+    .chart-container {
+        width: 45%; /* Adjust width to control the size of each chart */
+        margin: 0; /* Removes margin from individual charts */
+        /* Other styles remain the same */
+    }
+
+    .chart-title {
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        color: #333;
+        /* Ensure the header does not cause overflow */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<h3>Statistics</h3>
+
+<div class="flex-container">
+    <div class="chart-container">
+        <header class="chart-title">Area Under the Curve (AUC):</header>
+        <canvas id="myChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <header class="chart-title">No failures</header>
+        <canvas id="zero"></canvas>
+    </div>
+    <div class="chart-container">
+        <header class="chart-title">Power failures</header>
+        <canvas id="one"></canvas>
+    </div>
+    <div class="chart-container">
+        <header class="chart-title">Tool Wear Failures</header>
+        <canvas id="two"></canvas>
+    </div>
+    <div class="chart-container">
+        <header class="chart-title">Overstrain Failures</header>
+        <canvas id="three"></canvas>
+    </div>
+    <div class="chart-container">
+        <header class="chart-title">Heat Dissipation Failure</header>
+        <canvas id="four"></canvas>
+    </div>
+</div>
+
+@code {
+    
+    private GraphScores[] GraphModelCreationScores = new GraphScores[0];
+
+    private void AddModel(string name, double number)
+    {
+        var existingModel = GraphModelCreationScores.FirstOrDefault(m => m.Name == name);
+        if (existingModel == null)
+        {
+            var newScores = new GraphScores[GraphModelCreationScores.Length + 1];
+            GraphModelCreationScores.CopyTo(newScores, 0);
+            newScores[newScores.Length - 1] = new GraphScores { Name = name, Number = number };
+            GraphModelCreationScores = newScores;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var labels = GraphModelCreationScores.Select(x => x.Name).ToArray();
+            var data = GraphModelCreationScores.Select(x => x.Number).ToArray();
+
+            // Create the bar chart
+            await JSRuntime.InvokeVoidAsync("createChart", "myChart", "bar", data, labels);
+            
+            await CreateLinechartGraphZero("zero");
+            await CreateLinechartGraph1("one");
+            await CreateLinechartGraph2("two");
+            await CreateLinechartGraph3("three");
+            await CreateLinechartGraph4("four");
+
+        }
+    }
+
+    private async Task CreateLinechartGraphZero(string name)
+    {
+        var jsonResult = await scoreService.GetAllSCoresAsync();
+
+        List<double> F1ScoreList = new List<double>();
+        List<double> PrecisionScoreList = new List<double>();
+        List<double> RecallScoreList = new List<double>();
+        List<string> lineChartLabels = new List<string>();
+        foreach (var result in jsonResult)
+        {
+            var predictionResult = JsonSerializer.Deserialize<PredictionResult>(result.JSonData);
+            F1ScoreList.Add(predictionResult.ClassificationReport.Zero.F1Score);
+            PrecisionScoreList.Add(predictionResult.ClassificationReport.Zero.Precision);
+            RecallScoreList.Add(predictionResult.ClassificationReport.Zero.Recall);
+            lineChartLabels.Add(predictionResult.ModelName);
+        }
+
+        await LineGraph(name, lineChartLabels, F1ScoreList, PrecisionScoreList, RecallScoreList);
+    }
+    private async Task CreateLinechartGraph1(string name)
+    {
+        var jsonResult = await scoreService.GetAllSCoresAsync();
+
+        List<double> F1ScoreList = new List<double>();
+        List<double> PrecisionScoreList = new List<double>();
+        List<double> RecallScoreList = new List<double>();
+        List<string> lineChartLabels = new List<string>();
+        foreach (var result in jsonResult)
+        {
+            var predictionResult = JsonSerializer.Deserialize<PredictionResult>(result.JSonData);
+            F1ScoreList.Add(predictionResult.ClassificationReport.One.F1Score);
+            PrecisionScoreList.Add(predictionResult.ClassificationReport.One.Precision);
+            RecallScoreList.Add(predictionResult.ClassificationReport.One.Recall);
+            lineChartLabels.Add(predictionResult.ModelName);
+        }
+
+        await LineGraph(name, lineChartLabels, F1ScoreList, PrecisionScoreList, RecallScoreList);
+    }
+
+    private async Task CreateLinechartGraph2(string name)
+    {
+        var jsonResult = await scoreService.GetAllSCoresAsync();
+
+        List<double> F1ScoreList = new List<double>();
+        List<double> PrecisionScoreList = new List<double>();
+        List<double> RecallScoreList = new List<double>();
+        List<string> lineChartLabels = new List<string>();
+        foreach (var result in jsonResult)
+        {
+            var predictionResult = JsonSerializer.Deserialize<PredictionResult>(result.JSonData);
+            F1ScoreList.Add(predictionResult.ClassificationReport.Two.F1Score);
+            PrecisionScoreList.Add(predictionResult.ClassificationReport.Two.Precision);
+            RecallScoreList.Add(predictionResult.ClassificationReport.Two.Recall);
+            lineChartLabels.Add(predictionResult.ModelName);
+        }
+
+        await LineGraph(name, lineChartLabels, F1ScoreList, PrecisionScoreList, RecallScoreList);
+    }
+    private async Task CreateLinechartGraph3(string name)
+    {
+        var jsonResult = await scoreService.GetAllSCoresAsync();
+
+        List<double> F1ScoreList = new List<double>();
+        List<double> PrecisionScoreList = new List<double>();
+        List<double> RecallScoreList = new List<double>();
+        List<string> lineChartLabels = new List<string>();
+        foreach (var result in jsonResult)
+        {
+            var predictionResult = JsonSerializer.Deserialize<PredictionResult>(result.JSonData);
+            F1ScoreList.Add(predictionResult.ClassificationReport.Three.F1Score);
+            PrecisionScoreList.Add(predictionResult.ClassificationReport.Three.Precision);
+            RecallScoreList.Add(predictionResult.ClassificationReport.Three.Recall);
+            lineChartLabels.Add(predictionResult.ModelName);
+        }
+
+        await LineGraph(name, lineChartLabels, F1ScoreList, PrecisionScoreList, RecallScoreList);
+    }
+    private async Task CreateLinechartGraph4(string name)
+    {
+        var jsonResult = await scoreService.GetAllSCoresAsync();
+
+        List<double> F1ScoreList = new List<double>();
+        List<double> PrecisionScoreList = new List<double>();
+        List<double> RecallScoreList = new List<double>();
+        List<string> lineChartLabels = new List<string>();
+        foreach (var result in jsonResult)
+        {
+            var predictionResult = JsonSerializer.Deserialize<PredictionResult>(result.JSonData);
+            F1ScoreList.Add(predictionResult.ClassificationReport.Four.F1Score);
+            PrecisionScoreList.Add(predictionResult.ClassificationReport.Four.Precision);
+            RecallScoreList.Add(predictionResult.ClassificationReport.Four.Recall);
+            lineChartLabels.Add(predictionResult.ModelName);
+        }
+
+        await LineGraph(name, lineChartLabels, F1ScoreList, PrecisionScoreList, RecallScoreList);
+    }
+    private async Task LineGraph(string chartId, List<string> labels , List<double> f1SCore, List<double> Precision, List<double> recall)
+    {
+        var datasets = new object[]
+        {
+            new
+            {
+                label = "F1 score",
+                borderColor = "#E94649",
+                data = f1SCore,
+                fill = false
+            },
+            new
+            {
+                label = "Precision",
+                borderColor = "#F6B53F",
+                data = Precision,
+                fill = false
+            },
+            new
+            {
+                label = "recall",
+                borderColor = "#6FAAB0",
+                data = recall,
+                fill = false
+            }
+        };
+        await JSRuntime.InvokeVoidAsync("createLineChart", chartId, labels, datasets);
+    }
+
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        var scoreList = await scoreService.GetAllSCoresAsync();
+        if (scoreList.Count > 0)
+        {
+            foreach (var score in scoreList)
+            {
+                var predictionResult = JsonSerializer.Deserialize<PredictionResult>(score.JSonData);
+                AddModel(score.FileName, predictionResult.RocAucScore);
+            }
+        }
+    }
+}

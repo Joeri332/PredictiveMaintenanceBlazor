@@ -6,6 +6,7 @@
 @using Newtonsoft.Json.Linq
 @using PredictiveMaintenance.Constants
 @using PredictiveMaintenance.Enums
+@using Radzen
 @using Radzen.Blazor
 @inject IJSRuntime JSRuntime
 @inject IPredictionService PredictionService
@@ -135,13 +136,7 @@
             </div>
         </div>
     }
-    
-  <RadzenChart>
-    <RadzenChartValueAxis>
-        <RadzenChartAxis Min="0" Max="100" Step="0.1" />
-    </RadzenChartValueAxis>
-    <RadzenColumnSeries Data="@GraphModelCreationSCores" Title="Number" CategoryProperty="Name" ValueProperty="Number" />
-    </RadzenChart>
+
 </div>
 @if (predictionResults != null)
 {
@@ -165,12 +160,10 @@
     private string errorMessage;
     private DateTime startDate = DateTime.Now.AddDays(-30); 
     private DateTime endDate = DateTime.Now; 
-    private List<GraphScores> GraphModelCreationSCores = new();
+    bool showDataLabels = false;
+    //private List<GraphScores> GraphModelCreationSCores = new();
+    private GraphScores[] GraphModelCreationScores = new GraphScores[0];
 
-    private void AddModel(string name, double number)
-    {
-        GraphModelCreationSCores.Add(new GraphScores { Name = name, Number = number });
-    }
 
     protected async override Task OnInitializedAsync()
     {
@@ -185,7 +178,17 @@
                     selectedModels[model] = false;
                 }
             }
-
+            var scoreList = await scoreService.GetAllSCoresAsync();
+            if (scoreList.Count > 0)
+            {
+                foreach (var score in scoreList)
+                {
+                    var predictionResult = JsonSerializer.Deserialize<PredictionResult>(score.JSonData);
+                }
+            }
+       
+           
+            //AddModel();
             await ListCsvFiles();
         }
         catch (Exception ex)
@@ -223,7 +226,7 @@
         {
       
             predictionResults.Add(predictionResult); 
-            AddModel(predictionResult.Status, predictionResult.RocAucScore);
+            //AddModel(predictionResult.Status, predictionResult.RocAucScore);
         }
         else
         {
@@ -376,6 +379,7 @@
             {
                 await ListCsvFiles();
                 successMessage = "CSV file created successfully.";
+                await InvokeAsync(StateHasChanged);
             }
             else
             {

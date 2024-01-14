@@ -16,6 +16,11 @@ namespace PredictiveMaintenance.Services
             _context = context;
         }
 
+        public async Task<List<ModelCreationScores>> GetAllSCoresAsync()
+        {
+            return  _context.Scores.ToList();
+        }
+
         public async Task<ModelCreationScores> GetScoreForModel(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -33,6 +38,7 @@ namespace PredictiveMaintenance.Services
                 throw;
             }
         }
+     
 
         public async Task<bool> CreateScoreForModel(ModelCreationScores newData)
         {

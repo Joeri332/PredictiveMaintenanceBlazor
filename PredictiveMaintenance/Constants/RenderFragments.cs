@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PredictiveMaintenance.Enums;
 using PredictiveMaintenance.Models;
 
 namespace PredictiveMaintenance.Constants
@@ -11,7 +12,7 @@ namespace PredictiveMaintenance.Constants
             builder.AddAttribute(1, "class", "card prediction-card");
             builder.OpenElement(2, "div");
             builder.AddAttribute(3, "class", "card-header");
-            builder.AddContent(4, "Prediction Result");
+            builder.AddContent(4, predictionResult.ModelName);
             builder.CloseElement();
             builder.OpenElement(5, "div");
             builder.AddAttribute(6, "class", "card-body");
@@ -35,12 +36,11 @@ namespace PredictiveMaintenance.Constants
             builder.AddContent(16, $"Accuracy: {predictionResult.ClassificationReport.Accuracy}");
             builder.CloseElement();
 
-            // Display Metrics for each classification
-            builder.AddContent(17, DisplayMetrics("PWF", predictionResult.ClassificationReport.Zero));
-            builder.AddContent(18, DisplayMetrics("TWF", predictionResult.ClassificationReport.One));
-            builder.AddContent(19, DisplayMetrics("OSF", predictionResult.ClassificationReport.Two));
-            builder.AddContent(20, DisplayMetrics("HDF", predictionResult.ClassificationReport.Three));
-            builder.AddContent(21, DisplayMetrics("RNF", predictionResult.ClassificationReport.Four));
+            builder.AddContent(17, DisplayMetrics("No failure", predictionResult.ClassificationReport.Zero));
+            builder.AddContent(18, DisplayMetrics("Power failure", predictionResult.ClassificationReport.One));
+            builder.AddContent(19, DisplayMetrics("Tool Wear Failure", predictionResult.ClassificationReport.Two));
+            builder.AddContent(20, DisplayMetrics("Overstrain Failure", predictionResult.ClassificationReport.Three));
+            builder.AddContent(21, DisplayMetrics("Heat Dissipation Failure", predictionResult.ClassificationReport.Four));
 
             // Averages
             builder.OpenElement(22, "h5");

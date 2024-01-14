@@ -12,6 +12,9 @@ namespace PredictiveMaintenance.Models
 
         [JsonPropertyName("status")]
         public string Status { get; set; }
+
+        [JsonPropertyName("model_name")]
+        public string ModelName { get; set; }
     }
 
     public class ClassificationReport

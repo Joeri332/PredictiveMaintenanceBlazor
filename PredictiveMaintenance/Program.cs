@@ -3,6 +3,7 @@ using PredictiveMaintenance.Database;
 using PredictiveMaintenance.Interfaces;
 using PredictiveMaintenance.Services;
 using Microsoft.AspNetCore.StaticFiles; // Add this for FileExtensionContentTypeProvider
+using Syncfusion.Blazor;
 
 namespace PredictiveMaintenance
 {

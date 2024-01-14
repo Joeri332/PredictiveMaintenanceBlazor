@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\chartInterop.js" />
     <None Include="wwwroot\models\Baseball_ball.obj" />
   </ItemGroup>
 
@@ -15,6 +16,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Radzen.Blazor" Version="4.23.9" />
+    <PackageReference Include="Syncfusion.Blazor" Version="24.1.45" />
+    <PackageReference Include="Syncfusion.Blazor.Core" Version="24.1.45" />
+    <PackageReference Include="Syncfusion.EJ" Version="20.4.0.44" />
   </ItemGroup>
 
 </Project>
