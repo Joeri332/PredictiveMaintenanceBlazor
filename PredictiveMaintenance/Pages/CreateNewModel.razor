@@ -13,6 +13,12 @@
 @inject ModelSelectionService ModelSelectionService
 @inject IScoreService scoreService
 <style>
+
+    .half-size {
+        width: 8%;
+        height: auto;
+    }
+
     .card-header {
         background-color: #28a745; /* Bootstrap success color */
         color: white;
@@ -135,6 +141,10 @@
                 <input type="date" @bind="endDate" />
                 <div>
                     <button class="btn btn-color text-white mt-2" @onclick="CreateNewCsvFile">Create new dataset</button>
+                    @if (IsLoadingButton)
+                    {
+                        <img class="half-size m-3" src="/images/loading.gif">
+                    }
                 </div>
             </div>
         </div>
@@ -220,6 +230,7 @@
 
 @code {
     public bool IsLoading { get; set; } = true;
+    public bool IsLoadingButton { get; set; } = false;
     private PredictionResult predictionResult;
     private List<string> csvFiles;
     private List<string> modelList;
@@ -229,8 +240,8 @@
     List<PredictionResult> predictionResults = new();
     private string successMessage;
     private string errorMessage;
-    private DateTime startDate = DateTime.Now.AddDays(-30); 
-    private DateTime endDate = DateTime.Now; 
+    private DateTime startDate = DateTime.Now.AddDays(-30);
+    private DateTime endDate = DateTime.Now;
     bool showDataLabels = false;
     //private List<GraphScores> GraphModelCreationSCores = new();
     private GraphScores[] GraphModelCreationScores = new GraphScores[0];
@@ -257,8 +268,8 @@
                     var predictionResult = JsonSerializer.Deserialize<PredictionResult>(score.JSonData);
                 }
             }
-       
-           
+
+
             //AddModel();
             await ListCsvFiles();
         }
@@ -295,8 +306,8 @@
         var predictionResult = JsonSerializer.Deserialize<PredictionResult>(jsonResult.JSonData);
         if (checkbox)
         {
-      
-            predictionResults.Add(predictionResult); 
+
+            predictionResults.Add(predictionResult);
             //AddModel(predictionResult.Status, predictionResult.RocAucScore);
         }
         else
@@ -444,6 +455,8 @@
 
     private async void CreateNewCsvFile()
     {
+        IsLoadingButton = true;
+        await InvokeAsync(StateHasChanged);
         try
         {
             var success = await PredictionService.CreateNewCsvFile(startDate, endDate);
@@ -451,7 +464,6 @@
             {
                 await ListCsvFiles();
                 successMessage = "CSV file created successfully.";
-                await InvokeAsync(StateHasChanged);
             }
             else
             {
@@ -461,6 +473,11 @@
         catch (Exception ex)
         {
             errorMessage = "Error creating CSV file: " + ex.Message;
+        }
+        finally
+        {
+            IsLoadingButton = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 }
